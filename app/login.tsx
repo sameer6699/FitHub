@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
-import { Link, router } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, Lock, Mail, Eye, EyeOff } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
@@ -8,33 +8,43 @@ import Layout from '@/constants/Layout';
 import { useAuth } from '@/context/AuthContext';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('test@example.com');
-  const [password, setPassword] = useState('password');
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  
   const { signIn, isLoading } = useAuth();
+  const params = useLocalSearchParams();
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    // Handle success message and email from registration
+    if (params.message) {
+      setSuccessMessage(params.message as string);
+    }
+    if (params.email) {
+      setEmail(params.email as string);
+    }
+  }, [params]);
 
   const handleLogin = async () => {
-    // Basic validation
-    if (!email || !password) {
+    if (!email.trim() || !password.trim()) {
       setError('Please fill in all fields');
       return;
     }
 
     try {
-      setError('');
       await signIn(email, password);
-    } catch (error) {
-      setError('Invalid credentials. Please try again.');
+    } catch (error: any) {
+      setError(error.message);
     }
   };
 
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
     >
       <StatusBar style="light" />
       
@@ -46,10 +56,20 @@ export default function LoginScreen() {
       </View>
       
       <View style={styles.formContainer}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to continue your health journey</Text>
+        {successMessage ? (
+          <View style={styles.successMessage}>
+            <Text style={styles.successText}>{successMessage}</Text>
+          </View>
+        ) : null}
         
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {error ? (
+          <View style={styles.errorMessage}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : null}
+        
+        <Text style={styles.title}>Welcome Back!</Text>
+        <Text style={styles.subtitle}>Sign in to continue your fitness journey</Text>
         
         <View style={styles.inputContainer}>
           <View style={styles.inputIcon}>
@@ -62,7 +82,10 @@ export default function LoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(value) => {
+              setEmail(value);
+              setError('');
+            }}
           />
         </View>
         
@@ -76,7 +99,10 @@ export default function LoginScreen() {
             placeholderTextColor={Colors.dark.text + '80'}
             secureTextEntry={!showPassword}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(value) => {
+              setPassword(value);
+              setError('');
+            }}
           />
           <TouchableOpacity 
             style={styles.eyeIcon} 
@@ -114,10 +140,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </Link>
         </View>
-        
-        <Text style={styles.testCredentials}>
-          Test credentials: test@example.com / password
-        </Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -161,11 +183,29 @@ const styles = StyleSheet.create({
     color: Colors.dark.text + '99',
     marginBottom: Layout.spacing.xl,
   },
+  successMessage: {
+    backgroundColor: Colors.dark.success + '20',
+    padding: Layout.spacing.m,
+    borderRadius: Layout.borderRadius.medium,
+    marginBottom: Layout.spacing.m,
+  },
+  successText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: Colors.dark.success,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    backgroundColor: Colors.dark.error + '20',
+    padding: Layout.spacing.m,
+    borderRadius: Layout.borderRadius.medium,
+    marginBottom: Layout.spacing.m,
+  },
   errorText: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
     color: Colors.dark.error,
-    marginBottom: Layout.spacing.m,
+    textAlign: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -221,12 +261,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     fontSize: 14,
     color: Colors.dark.accent,
-  },
-  testCredentials: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    color: Colors.dark.text + '80',
-    textAlign: 'center',
   },
   eyeIcon: {
     padding: Layout.spacing.m,

@@ -1,20 +1,8 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { router } from 'expo-router';
 import { Alert } from 'react-native';
-
-// Define the shape of the user object
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  age?: number;
-  gender?: string;
-  height?: number;
-  weight?: number;
-  fitnessGoal?: string;
-  dietaryPreference?: string;
-  medicalIssues?: string;
-}
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth, User, AuthResponse } from '@/utils/api';
 
 // Define the shape of the auth context
 interface AuthContextType {
@@ -25,20 +13,6 @@ interface AuthContextType {
   signOut: () => void;
   register: (userData: Partial<User> & { password: string }) => Promise<void>;
 }
-
-// Test user credentials
-const TEST_USER: User = {
-  id: '1',
-  name: 'Test User',
-  email: 'test@example.com',
-  age: 30,
-  gender: 'Male',
-  height: 175,
-  weight: 70,
-  fitnessGoal: 'Weight Loss',
-  dietaryPreference: 'Balanced',
-  medicalIssues: '',
-};
 
 // Create the auth context
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -51,28 +25,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initialize auth state
   React.useEffect(() => {
-    // Check for stored auth state here if needed
-    setIsInitialized(true);
+    const initializeAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+          const userData = await auth.validateToken(token);
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        await AsyncStorage.removeItem('token');
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   // Sign in function
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // In a real app, you would call an API here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      
-      if (email === 'test@example.com' && password === 'password') {
-        setUser(TEST_USER);
-        if (isInitialized) {
-          router.replace('/(tabs)');
-        }
-      } else {
-        throw new Error('Invalid credentials');
+      const response = await auth.login(email, password);
+      await AsyncStorage.setItem('token', response.token);
+      setUser(response.user);
+      if (isInitialized) {
+        router.replace('/(tabs)');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign in error:', error);
-      throw error;
+      const errorMessage = error.response?.data?.message || 'Invalid credentials';
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Sign out function
   const signOut = async () => {
     try {
-      // Show confirmation dialog
       Alert.alert(
         'Sign Out',
         'Are you sure you want to sign out?',
@@ -96,15 +79,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             onPress: async () => {
               setIsLoading(true);
               try {
-                // Clear any stored tokens or auth data here
-                // await AsyncStorage.removeItem('userToken');
-                
-                // Clear the user state
+                await AsyncStorage.removeItem('token');
                 setUser(null);
                 
-                // Reset navigation state and redirect to login
                 if (isInitialized) {
-                  // Reset the navigation state
                   router.replace({
                     pathname: '/login',
                     params: { signOut: 'true' }
@@ -131,30 +109,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (userData: Partial<User> & { password: string }) => {
     setIsLoading(true);
     try {
-      // In a real app, you would call an API here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      
-      // Create a new user with the provided data
-      const newUser: User = {
-        id: Math.random().toString(36).substring(2, 9), // Generate a random ID
-        name: userData.name || '',
-        email: userData.email || '',
-        age: userData.age,
-        gender: userData.gender,
-        height: userData.height,
-        weight: userData.weight,
-        fitnessGoal: userData.fitnessGoal,
-        dietaryPreference: userData.dietaryPreference,
-        medicalIssues: userData.medicalIssues,
-      };
-      
-      setUser(newUser);
+      const response = await auth.register(userData);
+      // Don't set user or token here since we want them to login
       if (isInitialized) {
-        router.replace('/(tabs)');
+        router.replace({
+          pathname: '/login',
+          params: { 
+            message: 'Account created successfully! Please login to continue.',
+            email: userData.email 
+          }
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      throw error;
+      const errorMessage = error.response?.data?.message || 'Error creating account';
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -181,10 +150,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 // Custom hook to use the auth context
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
