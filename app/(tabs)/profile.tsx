@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Platform, Animated } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LogOut, Settings, Bell, CreditCard, Shield, CircleHelp as HelpCircle, User, Lock, ChevronRight } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
@@ -42,6 +42,25 @@ export default function ProfileScreen() {
     },
   ];
   
+  const statCardRefs = {
+    height: new Animated.Value(1),
+    weight: new Animated.Value(1),
+    bmi: new Animated.Value(1)
+  };
+
+  const menuItemRefs: { [key: string]: Animated.Value } = {};
+  menuItems.forEach(item => {
+    menuItemRefs[item.title] = new Animated.Value(1);
+  });
+
+  const handleStatCardPress = (stat: string) => {
+    console.log('Stat card pressed:', stat);
+  };
+
+  const handleMenuItemPress = (item: { title: string; description: string }) => {
+    console.log('Menu item pressed:', item.title);
+  };
+
   const calculateBMI = useCallback(() => {
     if (!user?.height || !user?.weight) return '—';
     
@@ -86,17 +105,62 @@ export default function ProfileScreen() {
       
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
+          <TouchableOpacity 
+            style={styles.statCard}
+            onPress={() => handleStatCardPress('height')}
+            onPressIn={() => {
+              Animated.spring(statCardRefs.height, {
+                toValue: 0.95,
+                useNativeDriver: true,
+              }).start();
+            }}
+            onPressOut={() => {
+              Animated.spring(statCardRefs.height, {
+                toValue: 1,
+                useNativeDriver: true,
+              }).start();
+            }}
+          >
             <Text style={styles.statValue}>{user?.height || '—'}</Text>
             <Text style={styles.statLabel}>Height (cm)</Text>
-          </View>
+          </TouchableOpacity>
           
-          <View style={styles.statCard}>
+          <TouchableOpacity 
+            style={styles.statCard}
+            onPress={() => handleStatCardPress('weight')}
+            onPressIn={() => {
+              Animated.spring(statCardRefs.weight, {
+                toValue: 0.95,
+                useNativeDriver: true,
+              }).start();
+            }}
+            onPressOut={() => {
+              Animated.spring(statCardRefs.weight, {
+                toValue: 1,
+                useNativeDriver: true,
+              }).start();
+            }}
+          >
             <Text style={styles.statValue}>{user?.weight || '—'}</Text>
             <Text style={styles.statLabel}>Weight (kg)</Text>
-          </View>
+          </TouchableOpacity>
           
-          <View style={styles.statCard}>
+          <TouchableOpacity 
+            style={styles.statCard}
+            onPress={() => handleStatCardPress('bmi')}
+            onPressIn={() => {
+              Animated.spring(statCardRefs.bmi, {
+                toValue: 0.95,
+                useNativeDriver: true,
+              }).start();
+            }}
+            onPressOut={() => {
+              Animated.spring(statCardRefs.bmi, {
+                toValue: 1,
+                useNativeDriver: true,
+              }).start();
+            }}
+          >
             <Text style={styles.statValue}>{calculateBMI()}</Text>
             <Text style={styles.statLabel}>BMI</Text>
             {getBMICategory() && (
@@ -104,7 +168,7 @@ export default function ProfileScreen() {
                 <Text style={styles.bmiCategoryText}>{getBMICategory()}</Text>
               </View>
             )}
-          </View>
+          </TouchableOpacity>
         </View>
         
         <View style={styles.preferencesSection}>
@@ -148,14 +212,32 @@ export default function ProfileScreen() {
         <View style={styles.menuSection}>
           <Text style={styles.sectionTitle}>Settings</Text>
           
-          {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.menuItem}>
-              <View style={styles.menuIcon}>{item.icon}</View>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuTitle}>{item.title}</Text>
-                <Text style={styles.menuDescription}>{item.description}</Text>
+          {menuItems.map((item) => (
+            <TouchableOpacity
+              key={item.title}
+              style={styles.menuItem}
+              onPress={() => handleMenuItemPress(item)}
+              onPressIn={() => {
+                Animated.spring(menuItemRefs[item.title], {
+                  toValue: 0.95,
+                  useNativeDriver: true,
+                }).start();
+              }}
+              onPressOut={() => {
+                Animated.spring(menuItemRefs[item.title], {
+                  toValue: 1,
+                  useNativeDriver: true,
+                }).start();
+              }}
+            >
+              <View style={styles.preferenceIcon}>
+                {item.icon}
               </View>
-              <ChevronRight size={20} color={Colors.dark.border} />
+              <View style={styles.preferenceContent}>
+                <Text style={styles.preferenceLabel}>{item.title}</Text>
+                <Text style={styles.preferenceValue}>{item.description}</Text>
+              </View>
+              <ChevronRight size={20} color={Colors.dark.text + '40'} />
             </TouchableOpacity>
           ))}
         </View>
@@ -243,6 +325,12 @@ const styles = StyleSheet.create({
     padding: Layout.spacing.m,
     marginHorizontal: Layout.spacing.xs,
     alignItems: 'center',
+    shadowColor: Colors.dark.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 8,
+    elevation: 0,
+    transform: [{ scale: 1 }],
   },
   statValue: {
     fontFamily: 'Inter-Bold',
@@ -327,6 +415,12 @@ const styles = StyleSheet.create({
     marginBottom: Layout.spacing.s,
     padding: Layout.spacing.m,
     borderRadius: Layout.borderRadius.medium,
+    shadowColor: Colors.dark.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 8,
+    elevation: 0,
+    transform: [{ scale: 1 }],
   },
   menuIcon: {
     width: 40,

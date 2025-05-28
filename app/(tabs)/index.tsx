@@ -1,31 +1,38 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { LineChart, BarChart } from 'react-native-chart-kit';
-import { Calendar, TrendingUp, Clock, Heart, ArrowRight, Dumbbell } from 'lucide-react-native';
+import { Calendar, TrendingUp, Clock, Heart, ArrowRight, Dumbbell, Calendar as CalendarIcon, Utensils, ChevronRight } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import { useAuth } from '@/context/AuthContext';
 
-// Mock data for charts
-const weeklyActivityData = {
-  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  datasets: [
-    {
-      data: [60, 45, 70, 40, 65, 80, 55],
-      color: () => Colors.dark.accent,
-      strokeWidth: 2,
-    },
-  ],
+// Mock data for upcoming appointments
+const upcomingAppointments = [
+  { id: 1, type: 'Physiotherapy', time: '10:00 AM', date: '2024-03-20', therapist: 'Dr. Sarah Johnson' },
+  { id: 2, type: 'Massage Therapy', time: '2:30 PM', date: '2024-03-21', therapist: 'Mike Wilson' },
+];
+
+// Mock data for workout plan
+const workoutPlan = {
+  currentWeek: 'Week 3 of 12',
+  nextWorkout: {
+    type: 'Upper Body Strength',
+    exercises: ['Bench Press', 'Shoulder Press', 'Tricep Dips'],
+    duration: '45 minutes',
+  },
 };
 
-const workoutData = {
-  labels: ['Cardio', 'Strength', 'Flexibility', 'Balance'],
-  datasets: [
-    {
-      data: [20, 45, 28, 15],
-    },
-  ],
+// Mock data for diet analytics
+const dietAnalytics = {
+  dailyCalories: 1850,
+  targetCalories: 2000,
+  macros: {
+    protein: 120,
+    carbs: 180,
+    fats: 65,
+  },
+  waterIntake: 1.8, // liters
+  targetWater: 2.5, // liters
 };
 
 export default function AnalyticsScreen() {
@@ -83,110 +90,100 @@ export default function AnalyticsScreen() {
             <Text style={styles.statLabel}>Workout Time</Text>
           </View>
         </View>
-        
-        <View style={styles.chartSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Weekly Activity</Text>
-            <TouchableOpacity style={styles.viewAllButton}>
-              <Text style={styles.viewAllText}>View Details</Text>
-              <ArrowRight size={16} color={Colors.dark.accent} />
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.chartContainer}>
-            <LineChart
-              data={weeklyActivityData}
-              width={Layout.window.width - Layout.spacing.l * 2}
-              height={220}
-              chartConfig={{
-                backgroundGradientFrom: Colors.dark.card,
-                backgroundGradientTo: Colors.dark.card,
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(163, 94, 247, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-                propsForDots: {
-                  r: '6',
-                  strokeWidth: '2',
-                  stroke: Colors.dark.accent,
-                },
-              }}
-              bezier
-              style={styles.chart}
-            />
-          </View>
-        </View>
-        
-        <View style={styles.chartSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Workout Distribution</Text>
-            <TouchableOpacity style={styles.viewAllButton}>
-              <Text style={styles.viewAllText}>View Details</Text>
-              <ArrowRight size={16} color={Colors.dark.accent} />
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.chartContainer}>
-            <BarChart
-              data={workoutData}
-              width={Layout.window.width - Layout.spacing.l * 2}
-              height={220}
-              yAxisLabel=""
-              chartConfig={{
-                backgroundGradientFrom: Colors.dark.card,
-                backgroundGradientTo: Colors.dark.card,
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(163, 94, 247, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-                barPercentage: 0.7,
-              }}
-              style={styles.chart}
-            />
-          </View>
-        </View>
-        
+
+        {/* Upcoming Appointments Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Activities</Text>
+            <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
             <TouchableOpacity style={styles.viewAllButton}>
               <Text style={styles.viewAllText}>View All</Text>
               <ArrowRight size={16} color={Colors.dark.accent} />
             </TouchableOpacity>
           </View>
           
-          <View style={styles.activityList}>
-            {['Yoga Session', 'Morning Jog', 'Strength Training'].map((activity, index) => (
-              <View key={index} style={styles.activityItem}>
-                <View style={styles.activityIcon}>
-                  <Dumbbell size={24} color={Colors.dark.accent} />
-                </View>
-                <View style={styles.activityInfo}>
-                  <Text style={styles.activityName}>{activity}</Text>
-                  <Text style={styles.activityTime}>{`${index + 1} ${index === 0 ? 'hour' : 'hours'} ago • ${Math.floor(Math.random() * 40) + 20} min`}</Text>
-                </View>
-                <View style={styles.activityStats}>
-                  <Text style={styles.activityCalories}>{Math.floor(Math.random() * 300) + 100} cal</Text>
-                </View>
+          {upcomingAppointments.map((appointment) => (
+            <View key={appointment.id} style={styles.appointmentCard}>
+              <View style={styles.appointmentIcon}>
+                <CalendarIcon size={24} color={Colors.dark.accent} />
               </View>
-            ))}
-          </View>
+              <View style={styles.appointmentInfo}>
+                <Text style={styles.appointmentType}>{appointment.type}</Text>
+                <Text style={styles.appointmentDetails}>
+                  {appointment.time} • {appointment.date}
+                </Text>
+                <Text style={styles.appointmentTherapist}>{appointment.therapist}</Text>
+              </View>
+              <ChevronRight size={20} color={Colors.dark.text + '80'} />
+            </View>
+          ))}
         </View>
-        
+
+        {/* Workout Plan Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Today's Health Tips</Text>
+            <Text style={styles.sectionTitle}>Current Workout Plan</Text>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={styles.viewAllText}>View Plan</Text>
+              <ArrowRight size={16} color={Colors.dark.accent} />
+            </TouchableOpacity>
           </View>
           
-          <View style={styles.tipCard}>
-            <Text style={styles.tipTitle}>Hydration Reminder</Text>
-            <Text style={styles.tipText}>
-              Remember to drink at least 8 glasses of water today. Staying hydrated improves energy levels and brain function.
-            </Text>
+          <View style={styles.workoutPlanCard}>
+            <Text style={styles.workoutPlanProgress}>{workoutPlan.currentWeek}</Text>
+            <View style={styles.nextWorkout}>
+              <Text style={styles.nextWorkoutTitle}>Next Workout</Text>
+              <Text style={styles.nextWorkoutType}>{workoutPlan.nextWorkout.type}</Text>
+              <View style={styles.exerciseList}>
+                {workoutPlan.nextWorkout.exercises.map((exercise, index) => (
+                  <Text key={index} style={styles.exerciseItem}>• {exercise}</Text>
+                ))}
+              </View>
+              <Text style={styles.workoutDuration}>{workoutPlan.nextWorkout.duration}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Diet Analytics Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Diet Analytics</Text>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={styles.viewAllText}>View Details</Text>
+              <ArrowRight size={16} color={Colors.dark.accent} />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.dietCard}>
+            <View style={styles.calorieSection}>
+              <Text style={styles.calorieTitle}>Daily Calories</Text>
+              <Text style={styles.calorieValue}>{dietAnalytics.dailyCalories}</Text>
+              <Text style={styles.calorieTarget}>Target: {dietAnalytics.targetCalories}</Text>
+            </View>
+            
+            <View style={styles.macrosSection}>
+              <View style={styles.macroItem}>
+                <Text style={styles.macroValue}>{dietAnalytics.macros.protein}g</Text>
+                <Text style={styles.macroLabel}>Protein</Text>
+              </View>
+              <View style={styles.macroItem}>
+                <Text style={styles.macroValue}>{dietAnalytics.macros.carbs}g</Text>
+                <Text style={styles.macroLabel}>Carbs</Text>
+              </View>
+              <View style={styles.macroItem}>
+                <Text style={styles.macroValue}>{dietAnalytics.macros.fats}g</Text>
+                <Text style={styles.macroLabel}>Fats</Text>
+              </View>
+            </View>
+            
+            <View style={styles.waterSection}>
+              <View style={styles.waterIcon}>
+                <Utensils size={20} color={Colors.dark.accent} />
+              </View>
+              <View style={styles.waterInfo}>
+                <Text style={styles.waterTitle}>Water Intake</Text>
+                <Text style={styles.waterValue}>{dietAnalytics.waterIntake}L / {dietAnalytics.targetWater}L</Text>
+              </View>
+            </View>
           </View>
         </View>
         
@@ -257,14 +254,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Layout.spacing.l,
     marginBottom: Layout.spacing.l,
   },
-  chartSection: {
-    marginBottom: Layout.spacing.l,
-  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: Layout.spacing.l,
     marginBottom: Layout.spacing.m,
   },
   sectionTitle: {
@@ -282,17 +275,7 @@ const styles = StyleSheet.create({
     color: Colors.dark.accent,
     marginRight: Layout.spacing.xs,
   },
-  chartContainer: {
-    alignItems: 'center',
-  },
-  chart: {
-    borderRadius: Layout.borderRadius.medium,
-    paddingRight: 20,
-  },
-  activityList: {
-    marginTop: Layout.spacing.s,
-  },
-  activityItem: {
+  appointmentCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.dark.card,
@@ -300,7 +283,7 @@ const styles = StyleSheet.create({
     padding: Layout.spacing.m,
     marginBottom: Layout.spacing.s,
   },
-  activityIcon: {
+  appointmentIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -309,44 +292,139 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: Layout.spacing.m,
   },
-  activityInfo: {
+  appointmentInfo: {
     flex: 1,
   },
-  activityName: {
+  appointmentType: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
     color: Colors.dark.text,
     marginBottom: Layout.spacing.xs,
   },
-  activityTime: {
+  appointmentDetails: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
     color: Colors.dark.text + '80',
+    marginBottom: Layout.spacing.xs,
   },
-  activityStats: {
-    alignItems: 'flex-end',
-  },
-  activityCalories: {
+  appointmentTherapist: {
     fontFamily: 'Inter-Medium',
-    fontSize: 16,
+    fontSize: 14,
     color: Colors.dark.accent,
   },
-  tipCard: {
+  workoutPlanCard: {
     backgroundColor: Colors.dark.card,
     borderRadius: Layout.borderRadius.medium,
     padding: Layout.spacing.l,
   },
-  tipTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: Colors.dark.text,
-    marginBottom: Layout.spacing.s,
+  workoutPlanProgress: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    color: Colors.dark.accent,
+    marginBottom: Layout.spacing.m,
   },
-  tipText: {
+  nextWorkout: {
+    marginTop: Layout.spacing.s,
+  },
+  nextWorkoutTitle: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: Colors.dark.text + '80',
+    marginBottom: Layout.spacing.xs,
+  },
+  nextWorkoutType: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 18,
+    color: Colors.dark.text,
+    marginBottom: Layout.spacing.m,
+  },
+  exerciseList: {
+    marginBottom: Layout.spacing.m,
+  },
+  exerciseItem: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
     color: Colors.dark.text + '99',
-    lineHeight: 22,
+    marginBottom: Layout.spacing.xs,
+  },
+  workoutDuration: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    color: Colors.dark.accent,
+  },
+  dietCard: {
+    backgroundColor: Colors.dark.card,
+    borderRadius: Layout.borderRadius.medium,
+    padding: Layout.spacing.l,
+  },
+  calorieSection: {
+    marginBottom: Layout.spacing.l,
+  },
+  calorieTitle: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: Colors.dark.text + '80',
+    marginBottom: Layout.spacing.xs,
+  },
+  calorieValue: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 24,
+    color: Colors.dark.text,
+    marginBottom: Layout.spacing.xs,
+  },
+  calorieTarget: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: Colors.dark.text + '80',
+  },
+  macrosSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Layout.spacing.l,
+  },
+  macroItem: {
+    alignItems: 'center',
+  },
+  macroValue: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 18,
+    color: Colors.dark.text,
+    marginBottom: Layout.spacing.xs,
+  },
+  macroLabel: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    color: Colors.dark.text + '80',
+  },
+  waterSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.dark.accent + '20',
+    borderRadius: Layout.borderRadius.medium,
+    padding: Layout.spacing.m,
+  },
+  waterIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.dark.accent + '40',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Layout.spacing.m,
+  },
+  waterInfo: {
+    flex: 1,
+  },
+  waterTitle: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    color: Colors.dark.text,
+    marginBottom: Layout.spacing.xs,
+  },
+  waterValue: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+    color: Colors.dark.accent,
   },
   footer: {
     height: 40,

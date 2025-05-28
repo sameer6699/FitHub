@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, Platform } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, Platform, Animated } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Calendar as CalendarIcon, Clock, MapPin, User, Plus, ChevronRight } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
@@ -54,13 +54,43 @@ const AVAILABLE_SLOTS = [
 export default function AppointmentsScreen() {
   const [activeTab, setActiveTab] = useState('upcoming');
   
+  const appointmentCardRefs: { [key: string]: Animated.Value } = {};
+  const appointments = [
+    // Add your appointments data here
+    { id: '1', type: 'Physiotherapy', date: '2024-03-20', time: '10:00 AM', therapist: 'Dr. Smith', location: 'Main Clinic' },
+    { id: '2', type: 'Massage', date: '2024-03-22', time: '2:30 PM', therapist: 'Dr. Johnson', location: 'Downtown Branch' },
+  ];
+  
+  appointments.forEach(appointment => {
+    appointmentCardRefs[appointment.id] = new Animated.Value(1);
+  });
+
+  const handleAppointmentPress = (appointment: { id: string; type: string }) => {
+    console.log('Appointment pressed:', appointment.type);
+  };
+
   const formatDate = (dateString) => {
     const options = { weekday: 'short', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
   
   const renderAppointmentItem = ({ item }) => (
-    <TouchableOpacity style={styles.appointmentCard}>
+    <TouchableOpacity 
+      style={styles.appointmentCard}
+      onPress={() => handleAppointmentPress(item)}
+      onPressIn={() => {
+        Animated.spring(appointmentCardRefs[item.id], {
+          toValue: 0.95,
+          useNativeDriver: true,
+        }).start();
+      }}
+      onPressOut={() => {
+        Animated.spring(appointmentCardRefs[item.id], {
+          toValue: 1,
+          useNativeDriver: true,
+        }).start();
+      }}
+    >
       <View style={styles.appointmentHeader}>
         <Text style={styles.appointmentType}>{item.type}</Text>
         <View style={styles.statusBadge}>
@@ -258,6 +288,12 @@ const styles = StyleSheet.create({
     borderRadius: Layout.borderRadius.medium,
     marginBottom: Layout.spacing.m,
     overflow: 'hidden',
+    shadowColor: Colors.dark.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 8,
+    elevation: 0,
+    transform: [{ scale: 1 }],
   },
   appointmentHeader: {
     flexDirection: 'row',

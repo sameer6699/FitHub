@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Dimensions, Animated } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Play, Clock, ChevronRight, Filter, Dumbbell, Star } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
@@ -57,6 +57,15 @@ const WORKOUTS = [
   }
 ];
 
+interface Workout {
+  id: string;
+  title: string;
+  duration: string;
+  level: string;
+  category: string;
+  imageUrl: string;
+}
+
 export default function WorkoutsScreen() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   
@@ -64,6 +73,15 @@ export default function WorkoutsScreen() {
     ? WORKOUTS 
     : WORKOUTS.filter(workout => workout.category === selectedCategory);
     
+  const workoutCardRefs: { [key: string]: Animated.Value } = {};
+  WORKOUTS.forEach(workout => {
+    workoutCardRefs[workout.id] = new Animated.Value(1);
+  });
+
+  const handleCardPress = (workout: Workout) => {
+    console.log('Workout pressed:', workout.title);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -107,38 +125,72 @@ export default function WorkoutsScreen() {
           ))}
         </ScrollView>
         
-        <View style={styles.featuredWorkout}>
-          <Image
-            source={{ uri: 'https://images.pexels.com/photos/6551168/pexels-photo-6551168.jpeg' }}
-            style={styles.featuredImage}
-          />
-          <View style={styles.featuredOverlay}>
-            <View style={styles.featuredContent}>
-              <View style={styles.featuredBadge}>
-                <Star size={12} color={Colors.dark.text} />
-                <Text style={styles.featuredBadgeText}>Featured</Text>
-              </View>
-              <Text style={styles.featuredTitle}>Full Body Workout Plan</Text>
-              <Text style={styles.featuredSubtitle}>Complete 4-week program</Text>
-              
-              <View style={styles.featuredMeta}>
-                <View style={styles.metaItem}>
-                  <Clock size={16} color={Colors.dark.text + '99'} />
-                  <Text style={styles.metaText}>45 min</Text>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.featuredContainer}
+          contentContainerStyle={styles.featuredScrollContent}
+        >
+          {[
+            {
+              id: 'featured1',
+              title: 'Full Body Workout Plan',
+              subtitle: 'Complete 4-week program',
+              duration: '45 min',
+              level: 'Intermediate',
+              imageUrl: 'https://images.pexels.com/photos/2294361/pexels-photo-2294361.jpeg'
+            },
+            {
+              id: 'featured2',
+              title: 'Core Strength Mastery',
+              subtitle: '6-week transformation',
+              duration: '30 min',
+              level: 'Advanced',
+              imageUrl: 'https://images.pexels.com/photos/4761792/pexels-photo-4761792.jpeg'
+            },
+            {
+              id: 'featured3',
+              title: 'Flexibility Journey',
+              subtitle: '8-week mobility program',
+              duration: '40 min',
+              level: 'All Levels',
+              imageUrl: 'https://images.pexels.com/photos/4056535/pexels-photo-4056535.jpeg'
+            }
+          ].map((featured) => (
+            <View key={featured.id} style={styles.featuredWorkout}>
+              <Image
+                source={{ uri: featured.imageUrl }}
+                style={styles.featuredImage}
+              />
+              <View style={styles.featuredOverlay}>
+                <View style={styles.featuredContent}>
+                  <View style={styles.featuredBadge}>
+                    <Star size={12} color={Colors.dark.text} />
+                    <Text style={styles.featuredBadgeText}>Featured</Text>
+                  </View>
+                  <Text style={styles.featuredTitle}>{featured.title}</Text>
+                  <Text style={styles.featuredSubtitle}>{featured.subtitle}</Text>
+                  
+                  <View style={styles.featuredMeta}>
+                    <View style={styles.metaItem}>
+                      <Clock size={16} color={Colors.dark.text + '99'} />
+                      <Text style={styles.metaText}>{featured.duration}</Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                      <Dumbbell size={16} color={Colors.dark.text + '99'} />
+                      <Text style={styles.metaText}>{featured.level}</Text>
+                    </View>
+                  </View>
+                  
+                  <TouchableOpacity style={styles.startButton}>
+                    <Play size={18} color={Colors.dark.text} />
+                    <Text style={styles.startButtonText}>Start Workout</Text>
+                  </TouchableOpacity>
                 </View>
-                <View style={styles.metaItem}>
-                  <Dumbbell size={16} color={Colors.dark.text + '99'} />
-                  <Text style={styles.metaText}>Intermediate</Text>
-                </View>
               </View>
-              
-              <TouchableOpacity style={styles.startButton}>
-                <Play size={18} color={Colors.dark.text} />
-                <Text style={styles.startButtonText}>Start Workout</Text>
-              </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          ))}
+        </ScrollView>
         
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
@@ -152,7 +204,23 @@ export default function WorkoutsScreen() {
         
         <View style={styles.workoutGrid}>
           {filteredWorkouts.map((workout) => (
-            <TouchableOpacity key={workout.id} style={styles.workoutCard}>
+            <TouchableOpacity 
+              key={workout.id} 
+              style={styles.workoutCard}
+              onPress={() => handleCardPress(workout)}
+              onPressIn={() => {
+                Animated.spring(workoutCardRefs[workout.id], {
+                  toValue: 0.95,
+                  useNativeDriver: true,
+                }).start();
+              }}
+              onPressOut={() => {
+                Animated.spring(workoutCardRefs[workout.id], {
+                  toValue: 1,
+                  useNativeDriver: true,
+                }).start();
+              }}
+            >
               <Image source={{ uri: workout.imageUrl }} style={styles.workoutImage} />
               <View style={styles.workoutInfo}>
                 <Text style={styles.workoutTitle}>{workout.title}</Text>
@@ -185,7 +253,23 @@ export default function WorkoutsScreen() {
           contentContainerStyle={styles.recommendedContent}
         >
           {WORKOUTS.slice(0, 3).map((workout) => (
-            <TouchableOpacity key={workout.id} style={styles.recommendedCard}>
+            <TouchableOpacity 
+              key={workout.id} 
+              style={styles.recommendedCard}
+              onPress={() => handleCardPress(workout)}
+              onPressIn={() => {
+                Animated.spring(workoutCardRefs[workout.id], {
+                  toValue: 0.95,
+                  useNativeDriver: true,
+                }).start();
+              }}
+              onPressOut={() => {
+                Animated.spring(workoutCardRefs[workout.id], {
+                  toValue: 1,
+                  useNativeDriver: true,
+                }).start();
+              }}
+            >
               <Image source={{ uri: workout.imageUrl }} style={styles.recommendedImage} />
               <View style={styles.recommendedInfo}>
                 <Text style={styles.recommendedTitle}>{workout.title}</Text>
@@ -264,11 +348,18 @@ const styles = StyleSheet.create({
   categoryTextSelected: {
     color: Colors.dark.text,
   },
+  featuredContainer: {
+    paddingLeft: Layout.spacing.l,
+    marginBottom: Layout.spacing.l,
+  },
+  featuredScrollContent: {
+    paddingRight: Layout.spacing.m,
+  },
   featuredWorkout: {
-    marginHorizontal: Layout.spacing.l,
+    width: Layout.window.width - Layout.spacing.l * 2,
+    marginRight: Layout.spacing.m,
     borderRadius: Layout.borderRadius.medium,
     overflow: 'hidden',
-    marginBottom: Layout.spacing.l,
     height: 240,
   },
   featuredImage: {
@@ -376,6 +467,12 @@ const styles = StyleSheet.create({
     borderRadius: Layout.borderRadius.medium,
     overflow: 'hidden',
     backgroundColor: Colors.dark.card,
+    shadowColor: Colors.dark.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 8,
+    elevation: 0,
+    transform: [{ scale: 1 }],
   },
   workoutImage: {
     width: '100%',
@@ -425,6 +522,12 @@ const styles = StyleSheet.create({
     borderRadius: Layout.borderRadius.medium,
     overflow: 'hidden',
     backgroundColor: Colors.dark.card,
+    shadowColor: Colors.dark.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 8,
+    elevation: 0,
+    transform: [{ scale: 1 }],
   },
   recommendedImage: {
     width: '100%',
