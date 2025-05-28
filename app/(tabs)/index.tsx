@@ -43,6 +43,15 @@ const streakData = {
   streakHistory: [true, true, true, true, true, false, true, true, true, true, true, false, true, true, true, true, true]
 };
 
+/**
+ * Displays a comprehensive analytics dashboard for the user's fitness and health data.
+ *
+ * Renders sections for greeting, fitness streak, health stats, upcoming appointments, workout plan, and diet analytics using mock data and user context. The screen is organized into visually distinct cards and sections, providing an overview of the user's recent activity, health metrics, scheduled appointments, workout progress, and dietary intake.
+ *
+ * @returns The analytics screen component for the current user.
+ *
+ * @remark All displayed data is static and for demonstration purposes only; no dynamic fetching or real-time updates are performed.
+ */
 export default function AnalyticsScreen() {
   const { user } = useAuth();
   
