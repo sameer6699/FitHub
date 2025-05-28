@@ -98,7 +98,7 @@ SOFTWARE.
 
 ## 📞 Contact
 
-For any queries or support, please reach out to us at [your-email@example.com]
+For any queries or support, please reach out to us at [sammyjadhav6699@gmail.com]
 
 ---
 
