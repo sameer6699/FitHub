@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Redirect, Stack } from 'expo-router';
+import { Stack, Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
@@ -44,17 +44,41 @@ function RootLayoutNav() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {/* Auth Flow */}
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="signup" options={{ headerShown: false }} />
-      
-      {/* Main App */}
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      
-      {/* Error Screen */}
-      <Stack.Screen name="+not-found" options={{ headerShown: false }} />
+    <Stack>
+      <Stack.Screen 
+        name="index" 
+        options={{ 
+          headerShown: false,
+          gestureEnabled: !isAuthenticated 
+        }} 
+      />
+      <Stack.Screen 
+        name="login" 
+        options={{ 
+          headerShown: false,
+          gestureEnabled: !isAuthenticated 
+        }} 
+      />
+      <Stack.Screen 
+        name="signup" 
+        options={{ 
+          headerShown: false,
+          gestureEnabled: !isAuthenticated 
+        }} 
+      />
+      <Stack.Screen 
+        name="(tabs)" 
+        options={{ 
+          headerShown: false,
+          gestureEnabled: isAuthenticated 
+        }} 
+      />
+      <Stack.Screen 
+        name="+not-found" 
+        options={{ 
+          headerShown: false 
+        }} 
+      />
     </Stack>
   );
 }

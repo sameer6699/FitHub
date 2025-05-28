@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { router } from 'expo-router';
+import { Alert } from 'react-native';
 
 // Define the shape of the user object
 export interface User {
@@ -19,10 +20,10 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  isAuthenticated: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => void;
   register: (userData: Partial<User> & { password: string }) => Promise<void>;
-  isAuthenticated: boolean;
 }
 
 // Test user credentials
@@ -46,6 +47,13 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize auth state
+  React.useEffect(() => {
+    // Check for stored auth state here if needed
+    setIsInitialized(true);
+  }, []);
 
   // Sign in function
   const signIn = async (email: string, password: string) => {
@@ -56,7 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (email === 'test@example.com' && password === 'password') {
         setUser(TEST_USER);
-        router.replace('/(tabs)');
+        if (isInitialized) {
+          router.replace('/(tabs)');
+        }
       } else {
         throw new Error('Invalid credentials');
       }
@@ -69,9 +79,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Sign out function
-  const signOut = () => {
-    setUser(null);
-    router.replace('/');
+  const signOut = async () => {
+    try {
+      // Show confirmation dialog
+      Alert.alert(
+        'Sign Out',
+        'Are you sure you want to sign out?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign Out',
+            style: 'destructive',
+            onPress: async () => {
+              setIsLoading(true);
+              try {
+                // Clear any stored tokens or auth data here
+                // await AsyncStorage.removeItem('userToken');
+                
+                // Clear the user state
+                setUser(null);
+                
+                // Reset navigation state and redirect to login
+                if (isInitialized) {
+                  // Reset the navigation state
+                  router.replace({
+                    pathname: '/login',
+                    params: { signOut: 'true' }
+                  });
+                }
+              } catch (error) {
+                console.error('Sign out error:', error);
+                Alert.alert('Error', 'Failed to sign out. Please try again.');
+              } finally {
+                setIsLoading(false);
+              }
+            },
+          },
+        ],
+        { cancelable: true }
+      );
+    } catch (error) {
+      console.error('Sign out error:', error);
+      Alert.alert('Error', 'Failed to sign out. Please try again.');
+    }
   };
 
   // Register function
@@ -96,7 +149,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
       
       setUser(newUser);
-      router.replace('/(tabs)');
+      if (isInitialized) {
+        router.replace('/(tabs)');
+      }
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -104,6 +159,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   };
+
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider
