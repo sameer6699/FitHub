@@ -5,6 +5,29 @@ import { Calendar as CalendarIcon, Clock, MapPin, User, Plus, ChevronRight, Star
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 
+// Add these interfaces before the THERAPISTS constant
+interface Therapist {
+  id: string;
+  name: string;
+  specialization: string;
+  experience: string;
+  rating: number;
+  reviewCount: number;
+  imageUrl: string;
+  location: string;
+  availability: string[];
+  nextAvailable: string;
+}
+
+interface Appointment {
+  id: string;
+  type: string;
+  date: string;
+  time: string;
+  therapist: string;
+  location: string;
+}
+
 // Mock data for therapists
 const THERAPISTS = [
   {
@@ -99,7 +122,7 @@ export default function AppointmentsScreen() {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  const renderTherapistItem = ({ item }) => (
+  const renderTherapistItem = ({ item }: { item: Therapist }) => (
     <TouchableOpacity style={styles.therapistCard}>
       <Image source={{ uri: item.imageUrl }} style={styles.therapistImage} />
       <View style={styles.therapistInfo}>
@@ -147,7 +170,7 @@ export default function AppointmentsScreen() {
     </TouchableOpacity>
   );
 
-  const renderAppointmentItem = ({ item }) => (
+  const renderAppointmentItem = ({ item }: { item: Appointment }) => (
     <TouchableOpacity style={styles.appointmentCard}>
       <View style={styles.appointmentHeader}>
         <Text style={styles.appointmentType}>{item.type}</Text>
