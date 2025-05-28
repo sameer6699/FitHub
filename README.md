@@ -1,4 +1,4 @@
-# PhysioFit
+# FitHub
 
 <div align="center">
   <img src="assets/icon.png" alt="PhysioFit Logo" width="200"/>
