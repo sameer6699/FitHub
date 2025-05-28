@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Calendar, TrendingUp, Clock, Heart, ArrowRight, Dumbbell, Calendar as CalendarIcon, Utensils, ChevronRight } from 'lucide-react-native';
+import { Calendar, TrendingUp, Clock, Heart, ArrowRight, Dumbbell, Calendar as CalendarIcon, Utensils, ChevronRight, Flame, Watch } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import { useAuth } from '@/context/AuthContext';
@@ -35,6 +35,14 @@ const dietAnalytics = {
   targetWater: 2.5, // liters
 };
 
+// Mock data for streak
+const streakData = {
+  currentStreak: 5,
+  bestStreak: 12,
+  lastActiveDate: '2024-03-19',
+  streakHistory: [true, true, true, true, true, false, true, true, true, true, true, false, true, true, true, true, true]
+};
+
 export default function AnalyticsScreen() {
   const { user } = useAuth();
   
@@ -57,38 +65,96 @@ export default function AnalyticsScreen() {
           </Text>
         </View>
         
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <View style={styles.statIconContainer}>
-              <Heart size={20} color={Colors.dark.accent} />
-            </View>
-            <Text style={styles.statValue}>72 bpm</Text>
-            <Text style={styles.statLabel}>Avg. Heart Rate</Text>
+        {/* Streak Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Fitness Streak</Text>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={styles.viewAllText}>View History</Text>
+              <ArrowRight size={16} color={Colors.dark.accent} />
+            </TouchableOpacity>
           </View>
           
-          <View style={styles.statCard}>
-            <View style={styles.statIconContainer}>
-              <TrendingUp size={20} color={Colors.dark.accent} />
+          <View style={styles.streakCard}>
+            <View style={styles.streakHeader}>
+              <View style={styles.streakIconContainer}>
+                <Flame size={24} color={Colors.dark.accent} />
+              </View>
+              <View style={styles.streakInfo}>
+                <Text style={styles.streakValue}>{streakData.currentStreak} days</Text>
+                <Text style={styles.streakLabel}>Current Streak</Text>
+              </View>
+              <View style={styles.streakDivider} />
+              <View style={styles.streakInfo}>
+                <Text style={styles.streakValue}>{streakData.bestStreak} days</Text>
+                <Text style={styles.streakLabel}>Best Streak</Text>
+              </View>
             </View>
-            <Text style={styles.statValue}>5.4k</Text>
-            <Text style={styles.statLabel}>Steps Today</Text>
+            
+            <View style={styles.streakCalendar}>
+              {streakData.streakHistory.map((active, index) => (
+                <View 
+                  key={index} 
+                  style={styles.streakDay}
+                >
+                  {active ? (
+                    <Flame size={16} color={Colors.dark.accent} />
+                  ) : (
+                    <View style={styles.streakDayInactive} />
+                  )}
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+        
+        {/* Health Stats Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Health Stats</Text>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={styles.viewAllText}>Connect to smart watch</Text>
+              <Watch size={16} color={Colors.dark.accent} />
+            </TouchableOpacity>
           </View>
           
-          <View style={styles.statCard}>
-            <View style={styles.statIconContainer}>
-              <Calendar size={20} color={Colors.dark.accent} />
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.statsGrid}
+          >
+            <View style={styles.statCard}>
+              <View style={styles.statIconContainer}>
+                <Heart size={20} color={Colors.dark.accent} />
+              </View>
+              <Text style={styles.statValue}>72 bpm</Text>
+              <Text style={styles.statLabel}>Avg. Heart Rate</Text>
             </View>
-            <Text style={styles.statValue}>3</Text>
-            <Text style={styles.statLabel}>Active Days</Text>
-          </View>
-          
-          <View style={styles.statCard}>
-            <View style={styles.statIconContainer}>
-              <Clock size={20} color={Colors.dark.accent} />
+            
+            <View style={styles.statCard}>
+              <View style={styles.statIconContainer}>
+                <TrendingUp size={20} color={Colors.dark.accent} />
+              </View>
+              <Text style={styles.statValue}>5.4k</Text>
+              <Text style={styles.statLabel}>Steps Today</Text>
             </View>
-            <Text style={styles.statValue}>45m</Text>
-            <Text style={styles.statLabel}>Workout Time</Text>
-          </View>
+            
+            <View style={styles.statCard}>
+              <View style={styles.statIconContainer}>
+                <Calendar size={20} color={Colors.dark.accent} />
+              </View>
+              <Text style={styles.statValue}>3</Text>
+              <Text style={styles.statLabel}>Active Days</Text>
+            </View>
+            
+            <View style={styles.statCard}>
+              <View style={styles.statIconContainer}>
+                <Clock size={20} color={Colors.dark.accent} />
+              </View>
+              <Text style={styles.statValue}>45m</Text>
+              <Text style={styles.statLabel}>Workout Time</Text>
+            </View>
+          </ScrollView>
         </View>
 
         {/* Upcoming Appointments Section */}
@@ -219,35 +285,35 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: Layout.spacing.l - Layout.spacing.xs,
-    marginBottom: Layout.spacing.l,
+    paddingHorizontal: Layout.spacing.l,
+    paddingRight: Layout.spacing.l,
+    gap: Layout.spacing.s,
   },
   statCard: {
-    width: (Layout.window.width - Layout.spacing.l * 2 - Layout.spacing.xs * 2) / 2,
+    width: 100,
     backgroundColor: Colors.dark.card,
     borderRadius: Layout.borderRadius.medium,
-    padding: Layout.spacing.m,
-    margin: Layout.spacing.xs,
+    padding: Layout.spacing.xs,
+    alignItems: 'center',
   },
   statIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: Colors.dark.accent + '20',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Layout.spacing.s,
+    marginBottom: Layout.spacing.xs,
   },
   statValue: {
     fontFamily: 'Inter-Bold',
-    fontSize: 20,
+    fontSize: 14,
     color: Colors.dark.text,
-    marginBottom: Layout.spacing.xs,
+    marginBottom: 2,
   },
   statLabel: {
     fontFamily: 'Inter-Regular',
-    fontSize: 14,
+    fontSize: 11,
     color: Colors.dark.text + '80',
   },
   section: {
@@ -428,5 +494,63 @@ const styles = StyleSheet.create({
   },
   footer: {
     height: 40,
+  },
+  streakCard: {
+    backgroundColor: Colors.dark.card,
+    borderRadius: Layout.borderRadius.medium,
+    padding: Layout.spacing.m,
+  },
+  streakHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Layout.spacing.m,
+  },
+  streakIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.dark.accent + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Layout.spacing.m,
+  },
+  streakInfo: {
+    flex: 1,
+  },
+  streakValue: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 20,
+    color: Colors.dark.text,
+    marginBottom: 2,
+  },
+  streakLabel: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: Colors.dark.text + '80',
+  },
+  streakDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: Colors.dark.border,
+    marginHorizontal: Layout.spacing.m,
+  },
+  streakCalendar: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingTop: Layout.spacing.s,
+  },
+  streakDay: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 2,
+  },
+  streakDayInactive: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.dark.border,
   },
 });
