@@ -1,8 +1,9 @@
+import React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft, Check } from 'lucide-react-native';
+import { ArrowLeft, Check, Eye, EyeOff } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import { useAuth } from '@/context/AuthContext';
@@ -22,17 +23,20 @@ const FITNESS_GOALS = [
   'Muscle Gain',
   'Improved Fitness',
   'Rehabilitation',
-  'Sports Performance'
+  'Sports Performance',
+  'Other'
 ];
 
 // Dietary preferences options
 const DIETARY_PREFERENCES = [
   'No Restrictions',
   'Vegetarian',
+  'Non-Veg',
   'Vegan',
   'Gluten-Free',
   'Keto',
-  'Paleo'
+  'Paleo',
+  'Other'
 ];
 
 export default function SignupScreen() {
@@ -55,10 +59,32 @@ export default function SignupScreen() {
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showOtherFitnessGoal, setShowOtherFitnessGoal] = useState(false);
+  const [otherFitnessGoal, setOtherFitnessGoal] = useState('');
+  const [showOtherDietaryPreference, setShowOtherDietaryPreference] = useState(false);
+  const [otherDietaryPreference, setOtherDietaryPreference] = useState('');
 
   // Update form data
   const updateFormData = (key: string, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
+    
+    // Handle Other fitness goal selection
+    if (key === 'fitnessGoal') {
+      setShowOtherFitnessGoal(value === 'Other');
+      if (value !== 'Other') {
+        setOtherFitnessGoal('');
+      }
+    }
+    
+    // Handle Other dietary preference selection
+    if (key === 'dietaryPreference') {
+      setShowOtherDietaryPreference(value === 'Other');
+      if (value !== 'Other') {
+        setOtherDietaryPreference('');
+      }
+    }
     
     // Clear error for this field if exists
     if (errors[key]) {
@@ -329,27 +355,51 @@ export default function SignupScreen() {
             
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Create a password"
-                placeholderTextColor={Colors.dark.text + '80'}
-                secureTextEntry
-                value={formData.password}
-                onChangeText={(value) => updateFormData('password', value)}
-              />
+              <View style={styles.passwordInputContainer}>
+                <TextInput
+                  style={[styles.input, styles.passwordInput]}
+                  placeholder="Create a password"
+                  placeholderTextColor={Colors.dark.text + '80'}
+                  secureTextEntry={!showPassword}
+                  value={formData.password}
+                  onChangeText={(value) => updateFormData('password', value)}
+                />
+                <TouchableOpacity 
+                  style={styles.eyeIcon}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff size={20} color={Colors.dark.text + '99'} />
+                  ) : (
+                    <Eye size={20} color={Colors.dark.text + '99'} />
+                  )}
+                </TouchableOpacity>
+              </View>
               {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
             </View>
             
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Confirm Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Confirm your password"
-                placeholderTextColor={Colors.dark.text + '80'}
-                secureTextEntry
-                value={formData.confirmPassword}
-                onChangeText={(value) => updateFormData('confirmPassword', value)}
-              />
+              <View style={styles.passwordInputContainer}>
+                <TextInput
+                  style={[styles.input, styles.passwordInput]}
+                  placeholder="Confirm your password"
+                  placeholderTextColor={Colors.dark.text + '80'}
+                  secureTextEntry={!showConfirmPassword}
+                  value={formData.confirmPassword}
+                  onChangeText={(value) => updateFormData('confirmPassword', value)}
+                />
+                <TouchableOpacity 
+                  style={styles.eyeIcon}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} color={Colors.dark.text + '99'} />
+                  ) : (
+                    <Eye size={20} color={Colors.dark.text + '99'} />
+                  )}
+                </TouchableOpacity>
+              </View>
               {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
             </View>
           </>
@@ -389,6 +439,20 @@ export default function SignupScreen() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+              {showOtherFitnessGoal && (
+                <View style={styles.otherInputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your fitness goal"
+                    placeholderTextColor={Colors.dark.text + '80'}
+                    value={otherFitnessGoal}
+                    onChangeText={(value) => {
+                      setOtherFitnessGoal(value);
+                      updateFormData('fitnessGoal', value);
+                    }}
+                  />
+                </View>
+              )}
               {errors.fitnessGoal && <Text style={styles.errorText}>{errors.fitnessGoal}</Text>}
             </View>
             
@@ -420,6 +484,20 @@ export default function SignupScreen() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+              {showOtherDietaryPreference && (
+                <View style={styles.otherInputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your dietary preference"
+                    placeholderTextColor={Colors.dark.text + '80'}
+                    value={otherDietaryPreference}
+                    onChangeText={(value) => {
+                      setOtherDietaryPreference(value);
+                      updateFormData('dietaryPreference', value);
+                    }}
+                  />
+                </View>
+              )}
               {errors.dietaryPreference && <Text style={styles.errorText}>{errors.dietaryPreference}</Text>}
             </View>
             
@@ -462,12 +540,34 @@ export default function SignupScreen() {
       <View style={styles.progressContainer}>
         {STEPS.map((step, index) => (
           <View key={index} style={styles.progressStep}>
-            <View 
-              style={[
-                styles.progressDot,
-                index <= currentStep ? styles.progressDotActive : {}
-              ]}
-            />
+            <View style={styles.progressStepContent}>
+              <View 
+                style={[
+                  styles.progressCircle,
+                  index <= currentStep ? styles.progressCircleActive : {}
+                ]}
+              >
+                {index < currentStep ? (
+                  <View style={styles.checkmarkContainer}>
+                    <Check size={14} color={Colors.dark.text} />
+                  </View>
+                ) : (
+                  <Text 
+                    style={[
+                      styles.progressNumber,
+                      index <= currentStep ? styles.progressNumberActive : {}
+                    ]}
+                  >
+                    {index + 1}
+                  </Text>
+                )}
+              </View>
+              {index === currentStep && (
+                <Text style={styles.progressLabel}>
+                  {step}
+                </Text>
+              )}
+            </View>
             {index < STEPS.length - 1 && (
               <View 
                 style={[
@@ -527,28 +627,64 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     flexDirection: 'row',
-    paddingHorizontal: Layout.spacing.l,
-    marginBottom: Layout.spacing.m,
+    paddingHorizontal: Layout.spacing.s,
+    marginBottom: Layout.spacing.s,
+    marginTop: Layout.spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   progressStep: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  progressDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.dark.border,
+  progressStepContent: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
   },
-  progressDotActive: {
+  progressCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.dark.card,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  progressCircleActive: {
     backgroundColor: Colors.dark.accent,
+    borderColor: Colors.dark.accent,
+  },
+  progressNumber: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 7,
+    color: Colors.dark.text + '99',
+  },
+  progressNumberActive: {
+    color: Colors.dark.text,
+  },
+  checkmarkContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   progressLine: {
     flex: 1,
-    height: 2,
+    height: 1,
     backgroundColor: Colors.dark.border,
-    marginHorizontal: 4,
+    marginHorizontal: 1,
+    position: 'absolute',
+    top: 8,
+    left: 0,
+    right: 0,
   },
   progressLineActive: {
     backgroundColor: Colors.dark.accent,
@@ -675,5 +811,34 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
     color: Colors.dark.text,
+  },
+  progressLabel: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 10,
+    color: Colors.dark.text,
+    textAlign: 'center',
+    marginTop: 4,
+    maxWidth: 80,
+    position: 'absolute',
+    top: 20,
+    left: 0,
+    right: 0,
+  },
+  passwordInputContainer: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingRight: 40, // Make space for the eye icon
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 12,
+    padding: 4,
+  },
+  otherInputContainer: {
+    marginTop: Layout.spacing.m,
   },
 });
