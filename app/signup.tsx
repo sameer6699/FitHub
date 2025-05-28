@@ -86,8 +86,22 @@ export default function SignupScreen() {
       }
     }
     
-    // Clear error for this field if exists
-    if (errors[key]) {
+    // Validate email immediately after entry
+    if (key === 'email') {
+      if (!value.trim()) {
+        setErrors(prev => ({ ...prev, email: 'Email is required' }));
+      } else if (!/\S+@\S+\.\S+/.test(value)) {
+        setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }));
+      } else {
+        // Clear email error if validation passes
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.email;
+          return newErrors;
+        });
+      }
+    } else if (errors[key]) {
+      // Clear error for other fields if exists
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[key];
@@ -106,7 +120,7 @@ export default function SignupScreen() {
         if (!formData.email.trim()) {
           newErrors.email = 'Email is required';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-          newErrors.email = 'Email is invalid';
+          newErrors.email = 'Please enter a valid email address';
         }
         break;
         
@@ -192,9 +206,16 @@ export default function SignupScreen() {
         dietaryPreference: formData.dietaryPreference,
         medicalIssues: formData.medicalIssues,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup error:', error);
-      setErrors(prev => ({ ...prev, general: 'Failed to create account. Please try again.' }));
+      // Handle specific field errors
+      if (error.message.includes('email')) {
+        setErrors(prev => ({ ...prev, email: error.message }));
+        // Go back to the email step
+        setCurrentStep(0);
+      } else {
+        setErrors(prev => ({ ...prev, general: error.message }));
+      }
     }
   };
 
