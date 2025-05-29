@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, Stack } from 'expo-router';
 import { Activity, Dumbbell, Calendar, User } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from 'react-native';
@@ -73,7 +73,14 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
-          headerTitle: 'Your Profile',
+          headerTitle: 'Profile',
+        }}
+      />
+      <Tabs.Screen
+        name="personalized-workout"
+        options={{
+          href: null,
+          headerShown: false,
         }}
       />
     </Tabs>

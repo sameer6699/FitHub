@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Text, View, ScrollView, TouchableOpacity, Image, Dimensions, Animated } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Play, Clock, ChevronRight, Filter, Dumbbell, Star } from 'lucide-react-native';
+import { Play, Clock, ChevronRight, Filter, Dumbbell, Star, Plus } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { styles } from '@/styles/components/WorkoutsScreen.styles';
+import { router } from 'expo-router';
 
 const WORKOUT_CATEGORIES = [
   'All',
@@ -68,7 +69,50 @@ interface Workout {
 
 export default function WorkoutsScreen() {
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const scale = useRef(new Animated.Value(1)).current;
+  const translateX = useRef(new Animated.Value(0)).current;
+  const textOpacity = useRef(new Animated.Value(0)).current;
   
+  const handleButtonPress = () => {
+    const toValue = isExpanded ? 0 : 100;
+    const textToValue = isExpanded ? 0 : 1;
+    
+    Animated.sequence([
+      Animated.spring(scale, {
+        toValue: 0.95,
+        useNativeDriver: true,
+        friction: 5,
+        tension: 40
+      }),
+      Animated.parallel([
+        Animated.spring(translateX, {
+          toValue,
+          useNativeDriver: true,
+          friction: 5,
+          tension: 40
+        }),
+        Animated.timing(textOpacity, {
+          toValue: textToValue,
+          duration: 150,
+          useNativeDriver: true
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          useNativeDriver: true,
+          friction: 5,
+          tension: 40
+        })
+      ])
+    ]).start();
+    
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleCreateWorkout = () => {
+    router.push('/personalized-workout');
+  };
+
   const filteredWorkouts = selectedCategory === 'All' 
     ? WORKOUTS 
     : WORKOUTS.filter(workout => workout.category === selectedCategory);
@@ -92,7 +136,7 @@ export default function WorkoutsScreen() {
           
           <View style={styles.searchAndFilter}>
             <TouchableOpacity style={styles.filterButton}>
-              <Filter size={20} color={Colors.dark.text} />
+              <Filter size={16} color={Colors.dark.text} />
               <Text style={styles.filterText}>Filter</Text>
             </TouchableOpacity>
           </View>
@@ -284,6 +328,13 @@ export default function WorkoutsScreen() {
         
         <View style={styles.footer} />
       </ScrollView>
+
+      <TouchableOpacity 
+        style={styles.fab}
+        onPress={handleCreateWorkout}
+      >
+        <Plus size={24} color={Colors.dark.text} />
+      </TouchableOpacity>
     </View>
   );
 }
