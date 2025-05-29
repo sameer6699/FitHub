@@ -1,7 +1,7 @@
 # FitHub
 
 <div align="center">
-  <img src="assets/icon.png" alt="PhysioFit Logo" width="200"/>
+  <img src="assets/icon.png" alt="FitHub Logo" width="200"/>
   <br/>
   <p><em>Your Personal Physiotherapy Companion</em></p>
 </div>
@@ -45,8 +45,8 @@
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/PhysioFit.git
-cd PhysioFit
+git clone https://github.com/yourusername/FitHub.git
+cd FitHub
 ```
 
 2. Install dependencies:
@@ -76,7 +76,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 MIT License
 
-Copyright (c) 2024 PhysioFit
+Copyright (c) 2024 FitHub
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -103,5 +103,5 @@ For any queries or support, please reach out to us at [your-email@example.com]
 ---
 
 <div align="center">
-  Made with ❤️ by the PhysioFit Team
+  Made with ❤️ by the FitHub Team
 </div> 
