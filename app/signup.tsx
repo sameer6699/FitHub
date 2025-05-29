@@ -1,17 +1,18 @@
 import React from 'react';
 import { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, Check, Eye, EyeOff } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import { useAuth } from '@/context/AuthContext';
+import { styles } from '@/styles/components/SignupScreen.styles';
 
 // Signup form steps
 const STEPS = [
   'Basic Info',
-  'Personal Details',
+  'Personal Info',
   'Physical Info',
   'Security',
   'Preferences'
@@ -376,7 +377,7 @@ export default function SignupScreen() {
             
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Password</Text>
-              <View style={styles.passwordInputContainer}>
+              <View style={styles.passwordContainer}>
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   placeholder="Create a password"
@@ -401,7 +402,7 @@ export default function SignupScreen() {
             
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Confirm Password</Text>
-              <View style={styles.passwordInputContainer}>
+              <View style={styles.passwordContainer}>
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
                   placeholder="Confirm your password"
@@ -559,46 +560,53 @@ export default function SignupScreen() {
       </View>
       
       <View style={styles.progressContainer}>
-        {STEPS.map((step, index) => (
-          <View key={index} style={styles.progressStep}>
-            <View style={styles.progressStepContent}>
-              <View 
-                style={[
-                  styles.progressCircle,
-                  index <= currentStep ? styles.progressCircleActive : {}
-                ]}
-              >
-                {index < currentStep ? (
-                  <View style={styles.checkmarkContainer}>
-                    <Check size={14} color={Colors.dark.text} />
-                  </View>
-                ) : (
-                  <Text 
-                    style={[
-                      styles.progressNumber,
-                      index <= currentStep ? styles.progressNumberActive : {}
-                    ]}
-                  >
-                    {index + 1}
-                  </Text>
-                )}
-              </View>
-              {index === currentStep && (
-                <Text style={styles.progressLabel}>
+        <View style={styles.progressSteps}>
+          {STEPS.map((step, index) => (
+            <View key={index} style={styles.progressStep}>
+              <View style={styles.progressStepContent}>
+                <View 
+                  style={[
+                    styles.progressCircle,
+                    index < currentStep && styles.progressCircleCompleted,
+                    index === currentStep && styles.progressCircleActive
+                  ]}
+                >
+                  {index < currentStep ? (
+                    <View style={styles.checkmarkContainer}>
+                      <Check size={16} color={Colors.dark.text} />
+                    </View>
+                  ) : (
+                    <Text 
+                      style={[
+                        styles.progressNumber,
+                        index === currentStep && styles.progressNumberActive,
+                        index < currentStep && styles.progressNumberCompleted
+                      ]}
+                    >
+                      {index + 1}
+                    </Text>
+                  )}
+                </View>
+                <Text 
+                  style={[
+                    styles.progressLabel,
+                    index === currentStep && styles.progressLabelActive
+                  ]}
+                >
                   {step}
                 </Text>
-              )}
+                {index < STEPS.length - 1 && (
+                  <View 
+                    style={[
+                      styles.progressLine,
+                      index < currentStep && styles.progressLineActive
+                    ]}
+                  />
+                )}
+              </View>
             </View>
-            {index < STEPS.length - 1 && (
-              <View 
-                style={[
-                  styles.progressLine,
-                  index < currentStep ? styles.progressLineActive : {}
-                ]}
-              />
-            )}
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
       
       <ScrollView style={styles.formScroll} contentContainerStyle={styles.formContainer}>
@@ -624,242 +632,3 @@ export default function SignupScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.dark.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingHorizontal: Layout.spacing.l,
-    paddingBottom: Layout.spacing.m,
-  },
-  backButton: {
-    padding: Layout.spacing.s,
-  },
-  headerTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
-    color: Colors.dark.text,
-    marginLeft: Layout.spacing.m,
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: Layout.spacing.s,
-    marginBottom: Layout.spacing.s,
-    marginTop: Layout.spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  progressStep: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  progressStepContent: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  progressCircle: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: Colors.dark.card,
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  progressCircleActive: {
-    backgroundColor: Colors.dark.accent,
-    borderColor: Colors.dark.accent,
-  },
-  progressNumber: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 7,
-    color: Colors.dark.text + '99',
-  },
-  progressNumberActive: {
-    color: Colors.dark.text,
-  },
-  checkmarkContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.dark.border,
-    marginHorizontal: 1,
-    position: 'absolute',
-    top: 8,
-    left: 0,
-    right: 0,
-  },
-  progressLineActive: {
-    backgroundColor: Colors.dark.accent,
-  },
-  formScroll: {
-    flex: 1,
-  },
-  formContainer: {
-    padding: Layout.spacing.l,
-    paddingBottom: Layout.spacing.xxl,
-  },
-  generalError: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.dark.error,
-    textAlign: 'center',
-    marginBottom: Layout.spacing.m,
-    padding: Layout.spacing.m,
-    backgroundColor: Colors.dark.error + '20',
-    borderRadius: Layout.borderRadius.medium,
-  },
-  sectionTitle: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 24,
-    color: Colors.dark.text,
-    marginBottom: Layout.spacing.s,
-  },
-  sectionSubtitle: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    color: Colors.dark.text + '99',
-    marginBottom: Layout.spacing.l,
-  },
-  inputGroup: {
-    marginBottom: Layout.spacing.l,
-  },
-  inputLabel: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: Colors.dark.text,
-    marginBottom: Layout.spacing.s,
-  },
-  input: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: Layout.borderRadius.medium,
-    paddingHorizontal: Layout.spacing.m,
-    paddingVertical: Layout.spacing.m,
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    color: Colors.dark.text,
-  },
-  textArea: {
-    minHeight: 100,
-    paddingTop: Layout.spacing.m,
-  },
-  errorText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    color: Colors.dark.error,
-    marginTop: Layout.spacing.xs,
-  },
-  radioGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  radioButton: {
-    flex: 1,
-    backgroundColor: Colors.dark.card,
-    borderRadius: Layout.borderRadius.medium,
-    paddingVertical: Layout.spacing.m,
-    alignItems: 'center',
-    marginHorizontal: Layout.spacing.xs,
-  },
-  radioButtonSelected: {
-    backgroundColor: Colors.dark.accent,
-  },
-  radioButtonText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: Colors.dark.text + '99',
-  },
-  radioButtonTextSelected: {
-    color: Colors.dark.text,
-  },
-  optionsScroll: {
-    flexGrow: 0,
-  },
-  optionButton: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: Layout.borderRadius.medium,
-    paddingVertical: Layout.spacing.m,
-    paddingHorizontal: Layout.spacing.m,
-    marginRight: Layout.spacing.s,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionButtonSelected: {
-    backgroundColor: Colors.dark.accent,
-  },
-  checkIcon: {
-    marginRight: Layout.spacing.xs,
-  },
-  optionButtonText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: Colors.dark.text + '99',
-  },
-  optionButtonTextSelected: {
-    color: Colors.dark.text,
-  },
-  buttonContainer: {
-    marginTop: Layout.spacing.l,
-  },
-  button: {
-    backgroundColor: Colors.dark.primary,
-    borderRadius: Layout.borderRadius.medium,
-    paddingVertical: Layout.spacing.m,
-    alignItems: 'center',
-  },
-  submitButton: {
-    backgroundColor: Colors.dark.accent,
-  },
-  buttonText: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: Colors.dark.text,
-  },
-  progressLabel: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 10,
-    color: Colors.dark.text,
-    textAlign: 'center',
-    marginTop: 4,
-    maxWidth: 80,
-    position: 'absolute',
-    top: 20,
-    left: 0,
-    right: 0,
-  },
-  passwordInputContainer: {
-    position: 'relative',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  passwordInput: {
-    flex: 1,
-    paddingRight: 40, // Make space for the eye icon
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 12,
-    padding: 4,
-  },
-  otherInputContainer: {
-    marginTop: Layout.spacing.m,
-  },
-});

@@ -1,7 +1,7 @@
 # FitHub
 
 <div align="center">
-  <img src="assets/icon.png" alt="PhysioFit Logo" width="200"/>
+  <img src="assets/icon.png" alt="FitHub Logo" width="200"/>
   <br/>
   <p><em>Your Personal Physiotherapy Companion</em></p>
 </div>
@@ -45,8 +45,8 @@
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/PhysioFit.git
-cd PhysioFit
+git clone https://github.com/yourusername/FitHub.git
+cd FitHub
 ```
 
 2. Install dependencies:
@@ -103,5 +103,5 @@ For any queries or support, please reach out to us at [sammyjadhav6699@gmail.com
 ---
 
 <div align="center">
-  Made with ❤️ by the PhysioFit Team
+  Made with ❤️ by the FitHub Team
 </div> 
