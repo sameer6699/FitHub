@@ -36,10 +36,12 @@ export const styles = StyleSheet.create({
   progressStep: {
     flex: 1,
     alignItems: 'center',
+    position: 'relative',
   },
   progressStepContent: {
     alignItems: 'center',
     position: 'relative',
+    zIndex: 1,
   },
   progressCircle: {
     width: 32,
@@ -83,17 +85,33 @@ export const styles = StyleSheet.create({
     color: Colors.dark.text,
     fontFamily: 'Inter-Medium',
   },
+  progressLabelCompleted: {
+    color: Colors.dark.accent,
+    fontFamily: 'Inter-Medium',
+  },
   progressLine: {
     position: 'absolute',
     top: 16,
     left: '50%',
     right: '-50%',
     height: 2,
-    backgroundColor: Colors.dark.card,
-    zIndex: -1,
+    backgroundColor: Colors.dark.accent + '20',
+    zIndex: 0,
   },
   progressLineActive: {
     backgroundColor: Colors.dark.accent,
+  },
+  animatedProgressContainer: {
+    height: 4,
+    backgroundColor: Colors.dark.card,
+    borderRadius: 2,
+    marginTop: Layout.spacing.m,
+    overflow: 'hidden',
+  },
+  animatedProgressBar: {
+    height: '100%',
+    backgroundColor: Colors.dark.accent,
+    borderRadius: 2,
   },
   checkmarkContainer: {
     width: 32,

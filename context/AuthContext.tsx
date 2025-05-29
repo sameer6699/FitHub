@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  sessionId: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => void;
   register: (userData: Partial<User> & { password: string }) => Promise<void>;
@@ -22,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   // Initialize auth state
   React.useEffect(() => {
@@ -50,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await auth.login(email, password);
       await AsyncStorage.setItem('token', response.token);
       setUser(response.user);
+      setSessionId(response.sessionId);
       if (isInitialized) {
         router.replace('/(tabs)');
       }
@@ -79,8 +82,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             onPress: async () => {
               setIsLoading(true);
               try {
+                const token = await AsyncStorage.getItem('token');
+                if (token && sessionId) {
+                  await auth.logout(token, sessionId);
+                }
                 await AsyncStorage.removeItem('token');
                 setUser(null);
+                setSessionId(null);
                 
                 if (isInitialized) {
                   router.replace({
@@ -138,10 +146,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isLoading,
+        isAuthenticated: !!user,
+        sessionId,
         signIn,
         signOut,
         register,
-        isAuthenticated: !!user,
       }}
     >
       {children}

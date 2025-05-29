@@ -1,6 +1,6 @@
 import React from 'react';
-import { useState } from 'react';
-import { Text, View, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import { Text, View, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, Check, Eye, EyeOff } from 'lucide-react-native';
@@ -43,6 +43,7 @@ const DIETARY_PREFERENCES = [
 export default function SignupScreen() {
   const { register, isLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
+  const progressAnim = useRef(new Animated.Value(0)).current;
   
   // Form state
   const [formData, setFormData] = useState({
@@ -219,6 +220,52 @@ export default function SignupScreen() {
       }
     }
   };
+
+  // Calculate progress for current step
+  const calculateProgress = () => {
+    let totalFields = 0;
+    let filledFields = 0;
+
+    switch (currentStep) {
+      case 0: // Basic Info
+        totalFields = 2;
+        if (formData.name.trim()) filledFields++;
+        if (formData.email.trim()) filledFields++;
+        break;
+      case 1: // Personal Info
+        totalFields = 2;
+        if (formData.age.trim()) filledFields++;
+        if (formData.gender.trim()) filledFields++;
+        break;
+      case 2: // Physical Info
+        totalFields = 2;
+        if (formData.height.trim()) filledFields++;
+        if (formData.weight.trim()) filledFields++;
+        break;
+      case 3: // Security
+        totalFields = 2;
+        if (formData.password.trim()) filledFields++;
+        if (formData.confirmPassword.trim()) filledFields++;
+        break;
+      case 4: // Preferences
+        totalFields = 2;
+        if (formData.fitnessGoal.trim()) filledFields++;
+        if (formData.dietaryPreference.trim()) filledFields++;
+        break;
+    }
+
+    return filledFields / totalFields;
+  };
+
+  // Update progress animation when form data changes
+  useEffect(() => {
+    const progress = calculateProgress();
+    Animated.timing(progressAnim, {
+      toValue: progress,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [formData, currentStep]);
 
   // Render form based on current step
   const renderForm = () => {
@@ -561,51 +608,74 @@ export default function SignupScreen() {
       
       <View style={styles.progressContainer}>
         <View style={styles.progressSteps}>
-          {STEPS.map((step, index) => (
-            <View key={index} style={styles.progressStep}>
-              <View style={styles.progressStepContent}>
-                <View 
-                  style={[
-                    styles.progressCircle,
-                    index < currentStep && styles.progressCircleCompleted,
-                    index === currentStep && styles.progressCircleActive
-                  ]}
-                >
-                  {index < currentStep ? (
-                    <View style={styles.checkmarkContainer}>
-                      <Check size={16} color={Colors.dark.text} />
-                    </View>
-                  ) : (
-                    <Text 
-                      style={[
-                        styles.progressNumber,
-                        index === currentStep && styles.progressNumberActive,
-                        index < currentStep && styles.progressNumberCompleted
-                      ]}
-                    >
-                      {index + 1}
-                    </Text>
-                  )}
-                </View>
-                <Text 
-                  style={[
-                    styles.progressLabel,
-                    index === currentStep && styles.progressLabelActive
-                  ]}
-                >
-                  {step}
-                </Text>
-                {index < STEPS.length - 1 && (
+          {STEPS.map((step, index) => {
+            // Show current step and previous step
+            const shouldShowStep = index === currentStep || index === currentStep - 1;
+            
+            if (!shouldShowStep) return null;
+            
+            return (
+              <View key={index} style={styles.progressStep}>
+                <View style={styles.progressStepContent}>
                   <View 
                     style={[
-                      styles.progressLine,
-                      index < currentStep && styles.progressLineActive
+                      styles.progressCircle,
+                      index < currentStep && styles.progressCircleCompleted,
+                      index === currentStep && styles.progressCircleActive
                     ]}
-                  />
-                )}
+                  >
+                    {index < currentStep ? (
+                      <View style={styles.checkmarkContainer}>
+                        <Check size={16} color={Colors.dark.text} />
+                      </View>
+                    ) : (
+                      <Text 
+                        style={[
+                          styles.progressNumber,
+                          index === currentStep && styles.progressNumberActive,
+                          index < currentStep && styles.progressNumberCompleted
+                        ]}
+                      >
+                        {index + 1}
+                      </Text>
+                    )}
+                  </View>
+                  <Text 
+                    style={[
+                      styles.progressLabel,
+                      index === currentStep && styles.progressLabelActive,
+                      index < currentStep && styles.progressLabelCompleted
+                    ]}
+                  >
+                    {step}
+                  </Text>
+                  {index < STEPS.length - 1 && index < currentStep + 1 && (
+                    <View 
+                      style={[
+                        styles.progressLine,
+                        index < currentStep && styles.progressLineActive
+                      ]}
+                    />
+                  )}
+                </View>
               </View>
-            </View>
-          ))}
+            );
+          })}
+        </View>
+        
+        {/* Animated Progress Bar */}
+        <View style={styles.animatedProgressContainer}>
+          <Animated.View 
+            style={[
+              styles.animatedProgressBar,
+              {
+                width: progressAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['0%', '100%'],
+                }),
+              }
+            ]} 
+          />
         </View>
       </View>
       
