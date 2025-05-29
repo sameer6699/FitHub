@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const UserSession = require('../models/UserSession');
 
 const router = express.Router();
 
@@ -116,6 +117,14 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Create new session
+    const userSession = new UserSession({
+      userId: user._id,
+      deviceInfo: req.headers['user-agent'] || 'Unknown',
+      ipAddress: req.ip || 'Unknown'
+    });
+    await userSession.save();
+
     // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
@@ -123,11 +132,54 @@ router.post('/login', async (req, res) => {
     res.json({
       user: userResponse,
       token,
+      sessionId: userSession._id,
       message: 'Login successful!'
     });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Error logging in. Please try again.' });
+  }
+});
+
+// Logout route
+router.post('/logout', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const sessionId = req.body.sessionId;
+
+    if (!sessionId) {
+      return res.status(400).json({ message: 'Session ID is required' });
+    }
+
+    // Find and update the session
+    const session = await UserSession.findOne({
+      _id: sessionId,
+      userId: decoded.userId,
+      logoutTime: null
+    });
+
+    if (!session) {
+      return res.status(404).json({ message: 'Active session not found' });
+    }
+
+    // Calculate session duration in minutes
+    const logoutTime = new Date();
+    const sessionDuration = Math.round((logoutTime - session.loginTime) / (1000 * 60));
+
+    // Update session with logout time and duration
+    session.logoutTime = logoutTime;
+    session.sessionDuration = sessionDuration;
+    await session.save();
+
+    res.json({ message: 'Logout successful' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ message: 'Error logging out. Please try again.' });
   }
 });
 

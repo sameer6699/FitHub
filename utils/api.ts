@@ -20,6 +20,7 @@ export interface User {
 export interface AuthResponse {
   user: User;
   token: string;
+  sessionId: string;
 }
 
 const api = axios.create({
@@ -58,5 +59,11 @@ export const auth = {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
+  },
+
+  async logout(token: string, sessionId: string): Promise<void> {
+    await api.post('/auth/logout', { sessionId }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
   }
 }; 
