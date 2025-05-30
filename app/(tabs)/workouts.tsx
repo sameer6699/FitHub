@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Text, View, ScrollView, TouchableOpacity, Image, Dimensions, Animated, StyleSheet } from 'react-native';
+import { Text, View, ScrollView, TouchableOpacity, Image, Dimensions, Animated, StyleSheet, Modal } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Play, Clock, ChevronRight, Filter, Dumbbell, Star, Plus } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
@@ -71,6 +71,7 @@ const WorkoutsScreen = () => {
   const { colors } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showAllWorkoutsModal, setShowAllWorkoutsModal] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
@@ -126,6 +127,56 @@ const WorkoutsScreen = () => {
   const handleCardPress = (workout: Workout) => {
     console.log('Workout pressed:', workout.title);
   };
+
+  const renderAllWorkoutsModal = () => (
+    <Modal
+      visible={showAllWorkoutsModal}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setShowAllWorkoutsModal(false)}
+    >
+      <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+        <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>All Workouts</Text>
+            <TouchableOpacity 
+              onPress={() => setShowAllWorkoutsModal(false)}
+              style={styles.closeButton}
+            >
+              <Text style={[styles.closeButtonText, { color: colors.text }]}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.modalScrollContent}
+          >
+            {WORKOUTS.map((workout) => (
+              <TouchableOpacity 
+                key={workout.id} 
+                style={[styles.modalWorkoutCard, { backgroundColor: colors.card }]}
+                onPress={() => handleCardPress(workout)}
+              >
+                <Image source={{ uri: workout.imageUrl }} style={styles.modalWorkoutImage} />
+                <View style={styles.modalWorkoutInfo}>
+                  <Text style={[styles.modalWorkoutTitle, { color: colors.text }]}>{workout.title}</Text>
+                  <View style={styles.modalWorkoutMeta}>
+                    <View style={styles.metaItem}>
+                      <Clock size={14} color={colors.text + '99'} />
+                      <Text style={[styles.modalWorkoutMetaText, { color: colors.text + '99' }]}>{workout.duration}</Text>
+                    </View>
+                    <View style={[styles.levelBadge, { backgroundColor: colors.accent + '20' }]}>
+                      <Text style={[styles.levelText, { color: colors.accent }]}>{workout.level}</Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -243,7 +294,10 @@ const WorkoutsScreen = () => {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             {selectedCategory === 'All' ? 'All Workouts' : `${selectedCategory} Workouts`}
           </Text>
-          <TouchableOpacity style={styles.viewAllButton}>
+          <TouchableOpacity 
+            style={styles.viewAllButton}
+            onPress={() => setShowAllWorkoutsModal(true)}
+          >
             <Text style={[styles.viewAllText, { color: colors.accent }]}>View All</Text>
             <ChevronRight size={16} color={colors.accent} />
           </TouchableOpacity>
@@ -332,6 +386,8 @@ const WorkoutsScreen = () => {
         <View style={styles.footer} />
       </ScrollView>
 
+      {renderAllWorkoutsModal()}
+      
       <TouchableOpacity 
         style={[styles.fab, { backgroundColor: colors.accent }]}
         onPress={handleCreateWorkout}
@@ -494,24 +550,24 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingHorizontal: Layout.spacing.l,
     marginBottom: Layout.spacing.l,
+    justifyContent: 'space-between',
   },
   workoutCard: {
     width: '48%',
     marginBottom: Layout.spacing.m,
-    marginRight: '4%',
     borderRadius: Layout.borderRadius.medium,
     overflow: 'hidden',
   },
   workoutImage: {
     width: '100%',
-    height: 150,
+    height: 120,
   },
   workoutInfo: {
-    padding: Layout.spacing.m,
+    padding: Layout.spacing.s,
   },
   workoutTitle: {
     fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: Layout.spacing.xs,
   },
   workoutMeta: {
@@ -525,13 +581,13 @@ const styles = StyleSheet.create({
     marginLeft: Layout.spacing.xs,
   },
   levelBadge: {
-    paddingHorizontal: Layout.spacing.s,
+    paddingHorizontal: Layout.spacing.xs,
     paddingVertical: 2,
     borderRadius: Layout.borderRadius.small,
   },
   levelText: {
     fontFamily: 'Inter-Medium',
-    fontSize: 12,
+    fontSize: 10,
   },
   recommendedContainer: {
     marginBottom: Layout.spacing.l,
@@ -583,5 +639,63 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: Layout.borderRadius.large,
+    borderTopRightRadius: Layout.borderRadius.large,
+    maxHeight: '90%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Layout.spacing.l,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  modalTitle: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 20,
+  },
+  closeButton: {
+    padding: Layout.spacing.s,
+  },
+  closeButtonText: {
+    fontSize: 20,
+    fontFamily: 'Inter-Medium',
+  },
+  modalScrollContent: {
+    padding: Layout.spacing.l,
+  },
+  modalWorkoutCard: {
+    borderRadius: Layout.borderRadius.medium,
+    marginBottom: Layout.spacing.m,
+    overflow: 'hidden',
+  },
+  modalWorkoutImage: {
+    width: '100%',
+    height: 200,
+  },
+  modalWorkoutInfo: {
+    padding: Layout.spacing.m,
+  },
+  modalWorkoutTitle: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 18,
+    marginBottom: Layout.spacing.xs,
+  },
+  modalWorkoutMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modalWorkoutMetaText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    marginLeft: Layout.spacing.xs,
   },
 });
