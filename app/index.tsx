@@ -1,4 +1,4 @@
-import { Text, View, TouchableOpacity, ImageBackground, Animated } from 'react-native';
+import { Text, View, TouchableOpacity, ImageBackground, Animated, Image } from 'react-native';
 import { Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
@@ -84,8 +84,10 @@ export default function LandingScreen() {
         >
           <View style={styles.content}>
             <View style={styles.header}>
-              <Dumbbell color="#613eea" size={32} style={styles.logoIcon} />
-              <Text style={styles.title}>FitHub</Text>
+              <Image 
+                source={require('@/assets/images/fithub-logo.png')}
+                style={{ width: 500, height: 220, resizeMode: 'contain', marginBottom: 10 }}
+              />
               <Text style={styles.subtitle}>Health ◦ Physiotherapy ◦ Fitness</Text>
             </View>
 
