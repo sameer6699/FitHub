@@ -1,7 +1,7 @@
 # FitHub
 
 <div align="center">
-  <img src="assets/icon.png" alt="FitHub Logo" width="200"/>
+  <img src="D:\Projects\FitHub\assets\images\fithub-logo.png" alt="FitHub Logo" width="200"/>
   <br/>
   <p><em>Your Personal Physiotherapy Companion</em></p>
 </div>
