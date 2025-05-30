@@ -16,7 +16,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const THEME_STORAGE_KEY = '@theme_preference';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<ThemeType>('dark'); // Set default to dark
+  const [theme, setTheme] = useState<ThemeType>('dark');
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load saved theme preference
@@ -26,9 +26,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         if (savedTheme) {
           setTheme(savedTheme as ThemeType);
+        } else {
+          // If no saved theme, set to dark and save it
+          setTheme('dark');
+          await AsyncStorage.setItem(THEME_STORAGE_KEY, 'dark');
         }
       } catch (error) {
         console.error('Error loading theme preference:', error);
+        // On error, default to dark theme
+        setTheme('dark');
       } finally {
         setIsInitialized(true);
       }

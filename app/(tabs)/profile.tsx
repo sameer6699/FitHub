@@ -95,10 +95,11 @@ const ProfileScreen: React.FC = () => {
       <View style={[styles.header, { backgroundColor: colors.card }]}>
         <View style={styles.headerContent}>
           <View style={styles.profileInfo}>
-            <Image
-              source={{ uri: user?.photoURL || 'https://via.placeholder.com/100' }}
-              style={styles.profileImage}
-            />
+            <View style={[styles.profileImageContainer, { backgroundColor: colors.accent }]}>
+              <Text style={[styles.profileInitial, { color: colors.background }]}>
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              </Text>
+            </View>
             <View style={styles.profileDetails}>
               <Text style={[styles.profileName, { color: colors.text }]}>{user?.name || 'User'}</Text>
               <Text style={[styles.profileEmail, { color: colors.text + '99' }]}>{user?.email || 'user@example.com'}</Text>
@@ -285,11 +286,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  profileImage: {
+  profileImageContainer: {
     width: 60,
     height: 60,
     borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: Layout.spacing.m,
+  },
+  profileInitial: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 24,
   },
   profileDetails: {
     flex: 1,
@@ -421,5 +428,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
-
 export default ProfileScreen;
