@@ -2,9 +2,9 @@ import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Calendar, TrendingUp, Clock, Heart, ArrowRight, Dumbbell, Calendar as CalendarIcon, Utensils, ChevronRight, Flame, Watch } from 'lucide-react-native';
-import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 
 // Mock data for upcoming appointments
 const upcomingAppointments = [
@@ -54,17 +54,314 @@ const streakData = {
  */
 export default function AnalyticsScreen() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    greeting: {
+      paddingHorizontal: Layout.spacing.l,
+      paddingVertical: Layout.spacing.l,
+    },
+    welcomeText: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 16,
+      color: colors.text + '99',
+    },
+    nameText: {
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    dateText: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 14,
+      color: colors.text + '80',
+      marginTop: Layout.spacing.xs,
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      paddingHorizontal: Layout.spacing.l,
+      paddingRight: Layout.spacing.l,
+      gap: Layout.spacing.s,
+    },
+    statCard: {
+      width: 100,
+      backgroundColor: colors.card,
+      borderRadius: Layout.borderRadius.medium,
+      padding: Layout.spacing.xs,
+      alignItems: 'center',
+    },
+    statIconContainer: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.accent + '20',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: Layout.spacing.xs,
+    },
+    statValue: {
+      fontFamily: 'Inter-Bold',
+      fontSize: 14,
+      color: colors.text,
+      marginBottom: 2,
+    },
+    statLabel: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 11,
+      color: colors.text + '80',
+    },
+    section: {
+      paddingHorizontal: Layout.spacing.l,
+      marginBottom: Layout.spacing.l,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: Layout.spacing.m,
+    },
+    sectionTitle: {
+      fontFamily: 'Inter-SemiBold',
+      fontSize: 18,
+      color: colors.text,
+    },
+    viewAllButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    viewAllText: {
+      fontFamily: 'Inter-Medium',
+      fontSize: 14,
+      color: colors.accent,
+      marginRight: Layout.spacing.xs,
+    },
+    appointmentCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      borderRadius: Layout.borderRadius.medium,
+      padding: Layout.spacing.m,
+      marginBottom: Layout.spacing.s,
+    },
+    appointmentIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.accent + '20',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: Layout.spacing.m,
+    },
+    appointmentInfo: {
+      flex: 1,
+    },
+    appointmentType: {
+      fontFamily: 'Inter-SemiBold',
+      fontSize: 16,
+      color: colors.text,
+      marginBottom: Layout.spacing.xs,
+    },
+    appointmentDetails: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 14,
+      color: colors.text + '80',
+      marginBottom: Layout.spacing.xs,
+    },
+    appointmentTherapist: {
+      fontFamily: 'Inter-Medium',
+      fontSize: 14,
+      color: colors.accent,
+    },
+    workoutPlanCard: {
+      backgroundColor: colors.card,
+      borderRadius: Layout.borderRadius.medium,
+      padding: Layout.spacing.l,
+    },
+    workoutPlanProgress: {
+      fontFamily: 'Inter-Medium',
+      fontSize: 14,
+      color: colors.accent,
+      marginBottom: Layout.spacing.m,
+    },
+    nextWorkout: {
+      marginTop: Layout.spacing.s,
+    },
+    nextWorkoutTitle: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 14,
+      color: colors.text + '80',
+      marginBottom: Layout.spacing.xs,
+    },
+    nextWorkoutType: {
+      fontFamily: 'Inter-SemiBold',
+      fontSize: 18,
+      color: colors.text,
+      marginBottom: Layout.spacing.m,
+    },
+    exerciseList: {
+      marginBottom: Layout.spacing.m,
+    },
+    exerciseItem: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 14,
+      color: colors.text + '99',
+      marginBottom: Layout.spacing.xs,
+    },
+    workoutDuration: {
+      fontFamily: 'Inter-Medium',
+      fontSize: 14,
+      color: colors.accent,
+    },
+    dietCard: {
+      backgroundColor: colors.card,
+      borderRadius: Layout.borderRadius.medium,
+      padding: Layout.spacing.l,
+    },
+    calorieSection: {
+      marginBottom: Layout.spacing.l,
+    },
+    calorieTitle: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 14,
+      color: colors.text + '80',
+      marginBottom: Layout.spacing.xs,
+    },
+    calorieValue: {
+      fontFamily: 'Inter-Bold',
+      fontSize: 24,
+      color: colors.text,
+      marginBottom: Layout.spacing.xs,
+    },
+    calorieTarget: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 14,
+      color: colors.text + '80',
+    },
+    macrosSection: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: Layout.spacing.l,
+    },
+    macroItem: {
+      alignItems: 'center',
+    },
+    macroValue: {
+      fontFamily: 'Inter-Bold',
+      fontSize: 18,
+      color: colors.text,
+      marginBottom: Layout.spacing.xs,
+    },
+    macroLabel: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 12,
+      color: colors.text + '80',
+    },
+    waterSection: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.accent + '20',
+      borderRadius: Layout.borderRadius.medium,
+      padding: Layout.spacing.m,
+    },
+    waterIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.accent + '40',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: Layout.spacing.m,
+    },
+    waterInfo: {
+      flex: 1,
+    },
+    waterTitle: {
+      fontFamily: 'Inter-Medium',
+      fontSize: 14,
+      color: colors.text,
+      marginBottom: Layout.spacing.xs,
+    },
+    waterValue: {
+      fontFamily: 'Inter-SemiBold',
+      fontSize: 16,
+      color: colors.accent,
+    },
+    footer: {
+      height: 40,
+    },
+    streakCard: {
+      backgroundColor: colors.card,
+      borderRadius: Layout.borderRadius.medium,
+      padding: Layout.spacing.m,
+    },
+    streakHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: Layout.spacing.m,
+    },
+    streakIconContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.accent + '20',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: Layout.spacing.m,
+    },
+    streakInfo: {
+      flex: 1,
+    },
+    streakValue: {
+      fontFamily: 'Inter-Bold',
+      fontSize: 20,
+      color: colors.text,
+      marginBottom: 2,
+    },
+    streakLabel: {
+      fontFamily: 'Inter-Regular',
+      fontSize: 14,
+      color: colors.text + '80',
+    },
+    streakDivider: {
+      width: 1,
+      height: 40,
+      backgroundColor: colors.border,
+      marginHorizontal: Layout.spacing.m,
+    },
+    streakCalendar: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      paddingTop: Layout.spacing.s,
+    },
+    streakDay: {
+      width: 24,
+      height: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: 2,
+    },
+    streakDayInactive: {
+      width: 16,
+      height: 16,
+      borderRadius: 8,
+      backgroundColor: colors.border,
+    },
+  });
+
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar style={colors.background === '#FFFFFF' ? 'dark' : 'light'} />
       
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.greeting}>
-          <Text style={styles.welcomeText}>
-            Hello, <Text style={styles.nameText}>{user?.name}</Text>
+          <Text style={[styles.welcomeText, { color: colors.text + '99' }]}>
+            Hello, <Text style={[styles.nameText, { color: colors.text }]}>{user?.name}</Text>
           </Text>
-          <Text style={styles.dateText}>
+          <Text style={[styles.dateText, { color: colors.text + '80' }]}>
             {new Date().toLocaleDateString('en-US', { 
               weekday: 'long', 
               year: 'numeric', 
@@ -80,14 +377,14 @@ export default function AnalyticsScreen() {
             <Text style={styles.sectionTitle}>Fitness Streak</Text>
             <TouchableOpacity style={styles.viewAllButton}>
               <Text style={styles.viewAllText}>View History</Text>
-              <ArrowRight size={16} color={Colors.dark.accent} />
+              <ArrowRight size={16} color={colors.accent} />
             </TouchableOpacity>
           </View>
           
           <View style={styles.streakCard}>
             <View style={styles.streakHeader}>
               <View style={styles.streakIconContainer}>
-                <Flame size={24} color={Colors.dark.accent} />
+                <Flame size={24} color={colors.accent} />
               </View>
               <View style={styles.streakInfo}>
                 <Text style={styles.streakValue}>{streakData.currentStreak} days</Text>
@@ -107,7 +404,7 @@ export default function AnalyticsScreen() {
                   style={styles.streakDay}
                 >
                   {active ? (
-                    <Flame size={16} color={Colors.dark.accent} />
+                    <Flame size={16} color={colors.accent} />
                   ) : (
                     <View style={styles.streakDayInactive} />
                   )}
@@ -123,7 +420,7 @@ export default function AnalyticsScreen() {
             <Text style={styles.sectionTitle}>Health Stats</Text>
             <TouchableOpacity style={styles.viewAllButton}>
               <Text style={styles.viewAllText}>Connect to smart watch</Text>
-              <Watch size={16} color={Colors.dark.accent} />
+              <Watch size={16} color={colors.accent} />
             </TouchableOpacity>
           </View>
           
@@ -134,7 +431,7 @@ export default function AnalyticsScreen() {
           >
             <View style={styles.statCard}>
               <View style={styles.statIconContainer}>
-                <Heart size={20} color={Colors.dark.accent} />
+                <Heart size={20} color={colors.accent} />
               </View>
               <Text style={styles.statValue}>72 bpm</Text>
               <Text style={styles.statLabel}>Avg. Heart Rate</Text>
@@ -142,7 +439,7 @@ export default function AnalyticsScreen() {
             
             <View style={styles.statCard}>
               <View style={styles.statIconContainer}>
-                <TrendingUp size={20} color={Colors.dark.accent} />
+                <TrendingUp size={20} color={colors.accent} />
               </View>
               <Text style={styles.statValue}>5.4k</Text>
               <Text style={styles.statLabel}>Steps Today</Text>
@@ -150,7 +447,7 @@ export default function AnalyticsScreen() {
             
             <View style={styles.statCard}>
               <View style={styles.statIconContainer}>
-                <Calendar size={20} color={Colors.dark.accent} />
+                <Calendar size={20} color={colors.accent} />
               </View>
               <Text style={styles.statValue}>3</Text>
               <Text style={styles.statLabel}>Active Days</Text>
@@ -158,7 +455,7 @@ export default function AnalyticsScreen() {
             
             <View style={styles.statCard}>
               <View style={styles.statIconContainer}>
-                <Clock size={20} color={Colors.dark.accent} />
+                <Clock size={20} color={colors.accent} />
               </View>
               <Text style={styles.statValue}>45m</Text>
               <Text style={styles.statLabel}>Workout Time</Text>
@@ -172,14 +469,14 @@ export default function AnalyticsScreen() {
             <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
             <TouchableOpacity style={styles.viewAllButton}>
               <Text style={styles.viewAllText}>View All</Text>
-              <ArrowRight size={16} color={Colors.dark.accent} />
+              <ArrowRight size={16} color={colors.accent} />
             </TouchableOpacity>
           </View>
           
           {upcomingAppointments.map((appointment) => (
             <View key={appointment.id} style={styles.appointmentCard}>
               <View style={styles.appointmentIcon}>
-                <CalendarIcon size={24} color={Colors.dark.accent} />
+                <CalendarIcon size={24} color={colors.accent} />
               </View>
               <View style={styles.appointmentInfo}>
                 <Text style={styles.appointmentType}>{appointment.type}</Text>
@@ -188,7 +485,7 @@ export default function AnalyticsScreen() {
                 </Text>
                 <Text style={styles.appointmentTherapist}>{appointment.therapist}</Text>
               </View>
-              <ChevronRight size={20} color={Colors.dark.text + '80'} />
+              <ChevronRight size={20} color={colors.text + '80'} />
             </View>
           ))}
         </View>
@@ -199,7 +496,7 @@ export default function AnalyticsScreen() {
             <Text style={styles.sectionTitle}>Current Workout Plan</Text>
             <TouchableOpacity style={styles.viewAllButton}>
               <Text style={styles.viewAllText}>View Plan</Text>
-              <ArrowRight size={16} color={Colors.dark.accent} />
+              <ArrowRight size={16} color={colors.accent} />
             </TouchableOpacity>
           </View>
           
@@ -224,7 +521,7 @@ export default function AnalyticsScreen() {
             <Text style={styles.sectionTitle}>Diet Analytics</Text>
             <TouchableOpacity style={styles.viewAllButton}>
               <Text style={styles.viewAllText}>View Details</Text>
-              <ArrowRight size={16} color={Colors.dark.accent} />
+              <ArrowRight size={16} color={colors.accent} />
             </TouchableOpacity>
           </View>
           
@@ -252,7 +549,7 @@ export default function AnalyticsScreen() {
             
             <View style={styles.waterSection}>
               <View style={styles.waterIcon}>
-                <Utensils size={20} color={Colors.dark.accent} />
+                <Utensils size={20} color={colors.accent} />
               </View>
               <View style={styles.waterInfo}>
                 <Text style={styles.waterTitle}>Water Intake</Text>
@@ -267,299 +564,3 @@ export default function AnalyticsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.dark.background,
-  },
-  greeting: {
-    paddingHorizontal: Layout.spacing.l,
-    paddingVertical: Layout.spacing.l,
-  },
-  welcomeText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    color: Colors.dark.text + '99',
-  },
-  nameText: {
-    fontFamily: 'Inter-Bold',
-    color: Colors.dark.text,
-  },
-  dateText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.dark.text + '80',
-    marginTop: Layout.spacing.xs,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: Layout.spacing.l,
-    paddingRight: Layout.spacing.l,
-    gap: Layout.spacing.s,
-  },
-  statCard: {
-    width: 100,
-    backgroundColor: Colors.dark.card,
-    borderRadius: Layout.borderRadius.medium,
-    padding: Layout.spacing.xs,
-    alignItems: 'center',
-  },
-  statIconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: Colors.dark.accent + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Layout.spacing.xs,
-  },
-  statValue: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 14,
-    color: Colors.dark.text,
-    marginBottom: 2,
-  },
-  statLabel: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 11,
-    color: Colors.dark.text + '80',
-  },
-  section: {
-    paddingHorizontal: Layout.spacing.l,
-    marginBottom: Layout.spacing.l,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Layout.spacing.m,
-  },
-  sectionTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
-    color: Colors.dark.text,
-  },
-  viewAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  viewAllText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: Colors.dark.accent,
-    marginRight: Layout.spacing.xs,
-  },
-  appointmentCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.dark.card,
-    borderRadius: Layout.borderRadius.medium,
-    padding: Layout.spacing.m,
-    marginBottom: Layout.spacing.s,
-  },
-  appointmentIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.dark.accent + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Layout.spacing.m,
-  },
-  appointmentInfo: {
-    flex: 1,
-  },
-  appointmentType: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: Colors.dark.text,
-    marginBottom: Layout.spacing.xs,
-  },
-  appointmentDetails: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.dark.text + '80',
-    marginBottom: Layout.spacing.xs,
-  },
-  appointmentTherapist: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: Colors.dark.accent,
-  },
-  workoutPlanCard: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: Layout.borderRadius.medium,
-    padding: Layout.spacing.l,
-  },
-  workoutPlanProgress: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: Colors.dark.accent,
-    marginBottom: Layout.spacing.m,
-  },
-  nextWorkout: {
-    marginTop: Layout.spacing.s,
-  },
-  nextWorkoutTitle: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.dark.text + '80',
-    marginBottom: Layout.spacing.xs,
-  },
-  nextWorkoutType: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
-    color: Colors.dark.text,
-    marginBottom: Layout.spacing.m,
-  },
-  exerciseList: {
-    marginBottom: Layout.spacing.m,
-  },
-  exerciseItem: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.dark.text + '99',
-    marginBottom: Layout.spacing.xs,
-  },
-  workoutDuration: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: Colors.dark.accent,
-  },
-  dietCard: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: Layout.borderRadius.medium,
-    padding: Layout.spacing.l,
-  },
-  calorieSection: {
-    marginBottom: Layout.spacing.l,
-  },
-  calorieTitle: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.dark.text + '80',
-    marginBottom: Layout.spacing.xs,
-  },
-  calorieValue: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 24,
-    color: Colors.dark.text,
-    marginBottom: Layout.spacing.xs,
-  },
-  calorieTarget: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.dark.text + '80',
-  },
-  macrosSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: Layout.spacing.l,
-  },
-  macroItem: {
-    alignItems: 'center',
-  },
-  macroValue: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 18,
-    color: Colors.dark.text,
-    marginBottom: Layout.spacing.xs,
-  },
-  macroLabel: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    color: Colors.dark.text + '80',
-  },
-  waterSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.dark.accent + '20',
-    borderRadius: Layout.borderRadius.medium,
-    padding: Layout.spacing.m,
-  },
-  waterIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.dark.accent + '40',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Layout.spacing.m,
-  },
-  waterInfo: {
-    flex: 1,
-  },
-  waterTitle: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: Colors.dark.text,
-    marginBottom: Layout.spacing.xs,
-  },
-  waterValue: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: Colors.dark.accent,
-  },
-  footer: {
-    height: 40,
-  },
-  streakCard: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: Layout.borderRadius.medium,
-    padding: Layout.spacing.m,
-  },
-  streakHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Layout.spacing.m,
-  },
-  streakIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.dark.accent + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Layout.spacing.m,
-  },
-  streakInfo: {
-    flex: 1,
-  },
-  streakValue: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 20,
-    color: Colors.dark.text,
-    marginBottom: 2,
-  },
-  streakLabel: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.dark.text + '80',
-  },
-  streakDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: Colors.dark.border,
-    marginHorizontal: Layout.spacing.m,
-  },
-  streakCalendar: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingTop: Layout.spacing.s,
-  },
-  streakDay: {
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 2,
-  },
-  streakDayInactive: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: Colors.dark.border,
-  },
-});

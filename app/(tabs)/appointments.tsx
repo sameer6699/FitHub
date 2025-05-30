@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, Platform, Animated, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Calendar as CalendarIcon, Clock, MapPin, User, Plus, ChevronRight, Star, MessageCircle } from 'lucide-react-native';
-import Colors from '@/constants/Colors';
+import { useTheme } from '@/context/ThemeContext';
 import Layout from '@/constants/Layout';
 
 // Add these interfaces before the THERAPISTS constant
@@ -114,7 +114,8 @@ const AVAILABLE_SLOTS = [
   { id: '3', date: '2025-06-20', timeSlots: ['9:30 AM', '12:00 PM', '3:30 PM'] },
 ];
 
-export default function AppointmentsScreen() {
+const AppointmentsScreen = () => {
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState('therapists');
   
   const formatDate = (dateString: string) => {
@@ -123,47 +124,47 @@ export default function AppointmentsScreen() {
   };
 
   const renderTherapistItem = ({ item }: { item: Therapist }) => (
-    <TouchableOpacity style={styles.therapistCard}>
+    <TouchableOpacity style={[styles.therapistCard, { backgroundColor: colors.card }]}>
       <Image source={{ uri: item.imageUrl }} style={styles.therapistImage} />
       <View style={styles.therapistInfo}>
         <View style={styles.therapistHeader}>
           <View>
-            <Text style={styles.therapistName}>{item.name}</Text>
-            <Text style={styles.therapistSpecialization}>{item.specialization}</Text>
+            <Text style={[styles.therapistName, { color: colors.text }]}>{item.name}</Text>
+            <Text style={[styles.therapistSpecialization, { color: colors.text + '99' }]}>{item.specialization}</Text>
           </View>
-          <View style={styles.ratingContainer}>
-            <Star size={16} color={Colors.dark.accent} fill={Colors.dark.accent} />
-            <Text style={styles.ratingText}>{item.rating}</Text>
-            <Text style={styles.reviewCount}>({item.reviewCount})</Text>
+          <View style={[styles.ratingContainer, { backgroundColor: colors.accent + '20' }]}>
+            <Star size={16} color={colors.accent} fill={colors.accent} />
+            <Text style={[styles.ratingText, { color: colors.accent }]}>{item.rating}</Text>
+            <Text style={[styles.reviewCount, { color: colors.text + '99' }]}>({item.reviewCount})</Text>
           </View>
         </View>
         
         <View style={styles.therapistDetails}>
           <View style={styles.detailRow}>
-            <Clock size={16} color={Colors.dark.text + '99'} />
-            <Text style={styles.detailText}>{item.experience} experience</Text>
+            <Clock size={16} color={colors.text + '99'} />
+            <Text style={[styles.detailText, { color: colors.text + '99' }]}>{item.experience} experience</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <MapPin size={16} color={Colors.dark.text + '99'} />
-            <Text style={styles.detailText}>{item.location}</Text>
+            <MapPin size={16} color={colors.text + '99'} />
+            <Text style={[styles.detailText, { color: colors.text + '99' }]}>{item.location}</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <CalendarIcon size={16} color={Colors.dark.text + '99'} />
-            <Text style={styles.detailText}>Available: {item.availability.join(', ')}</Text>
+            <CalendarIcon size={16} color={colors.text + '99'} />
+            <Text style={[styles.detailText, { color: colors.text + '99' }]}>Available: {item.availability.join(', ')}</Text>
           </View>
         </View>
         
         <View style={styles.therapistActions}>
           <TouchableOpacity style={styles.reviewButton}>
-            <MessageCircle size={16} color={Colors.dark.accent} />
-            <Text style={styles.reviewButtonText}>View Reviews</Text>
+            <MessageCircle size={16} color={colors.accent} />
+            <Text style={[styles.reviewButtonText, { color: colors.accent }]}>View Reviews</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.bookButton}>
-            <Text style={styles.bookButtonText}>Book Appointment</Text>
-            <Text style={styles.nextAvailable}>Next: {formatDate(item.nextAvailable)}</Text>
+          <TouchableOpacity style={[styles.bookButton, { backgroundColor: colors.accent }]}>
+            <Text style={[styles.bookButtonText, { color: colors.text }]}>Book Appointment</Text>
+            <Text style={[styles.nextAvailable, { color: colors.text + '99' }]}>Next: {formatDate(item.nextAvailable)}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -171,11 +172,11 @@ export default function AppointmentsScreen() {
   );
 
   const renderAppointmentItem = ({ item }: { item: Appointment }) => (
-    <TouchableOpacity style={styles.appointmentCard}>
+    <TouchableOpacity style={[styles.appointmentCard, { backgroundColor: colors.card }]}>
       <View style={styles.appointmentHeader}>
-        <Text style={styles.appointmentType}>{item.type}</Text>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>
+        <Text style={[styles.appointmentType, { color: colors.text }]}>{item.type}</Text>
+        <View style={[styles.statusBadge, { backgroundColor: colors.accent + '20' }]}>
+          <Text style={[styles.statusText, { color: colors.accent }]}>
             {activeTab === 'upcoming' ? 'Confirmed' : 'Completed'}
           </Text>
         </View>
@@ -183,80 +184,104 @@ export default function AppointmentsScreen() {
       
       <View style={styles.appointmentDetails}>
         <View style={styles.detailRow}>
-          <CalendarIcon size={16} color={Colors.dark.text + '99'} />
-          <Text style={styles.detailText}>{formatDate(item.date)}</Text>
+          <CalendarIcon size={16} color={colors.text + '99'} />
+          <Text style={[styles.detailText, { color: colors.text + '99' }]}>{formatDate(item.date)}</Text>
         </View>
         
         <View style={styles.detailRow}>
-          <Clock size={16} color={Colors.dark.text + '99'} />
-          <Text style={styles.detailText}>{item.time}</Text>
+          <Clock size={16} color={colors.text + '99'} />
+          <Text style={[styles.detailText, { color: colors.text + '99' }]}>{item.time}</Text>
         </View>
         
         <View style={styles.detailRow}>
-          <User size={16} color={Colors.dark.text + '99'} />
-          <Text style={styles.detailText}>{item.therapist}</Text>
+          <User size={16} color={colors.text + '99'} />
+          <Text style={[styles.detailText, { color: colors.text + '99' }]}>{item.therapist}</Text>
         </View>
         
         <View style={styles.detailRow}>
-          <MapPin size={16} color={Colors.dark.text + '99'} />
-          <Text style={styles.detailText}>{item.location}</Text>
+          <MapPin size={16} color={colors.text + '99'} />
+          <Text style={[styles.detailText, { color: colors.text + '99' }]}>{item.location}</Text>
         </View>
       </View>
       
       <View style={styles.appointmentFooter}>
         {activeTab === 'upcoming' ? (
           <>
-            <TouchableOpacity style={styles.appointmentButton}>
-              <Text style={styles.rescheduleText}>Reschedule</Text>
+            <TouchableOpacity style={[styles.appointmentButton, { backgroundColor: colors.card }]}>
+              <Text style={[styles.rescheduleText, { color: colors.accent }]}>Reschedule</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={[styles.appointmentButton, styles.cancelButton]}>
-              <Text style={styles.cancelText}>Cancel</Text>
+            <TouchableOpacity style={[styles.appointmentButton, styles.cancelButton, { backgroundColor: colors.card }]}>
+              <Text style={[styles.cancelText, { color: colors.text + '99' }]}>Cancel</Text>
             </TouchableOpacity>
           </>
         ) : (
-          <TouchableOpacity style={styles.bookAgainButton}>
-            <Text style={styles.bookAgainText}>Book Again</Text>
+          <TouchableOpacity style={[styles.bookAgainButton, { backgroundColor: colors.accent }]}>
+            <Text style={[styles.bookAgainText, { color: colors.text }]}>Book Again</Text>
           </TouchableOpacity>
         )}
       </View>
     </TouchableOpacity>
   );
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar style={colors.background === '#FFFFFF' ? 'dark' : 'light'} />
       
       <View style={styles.headerSection}>
         <View>
-          <Text style={styles.pageTitle}>Appointments</Text>
-          <Text style={styles.pageSubtitle}>Book your therapy sessions</Text>
+          <Text style={[styles.pageTitle, { color: colors.text }]}>Appointments</Text>
+          <Text style={[styles.pageSubtitle, { color: colors.text + '99' }]}>Book your therapy sessions</Text>
         </View>
       </View>
       
       <View style={styles.tabContainer}>
         <TouchableOpacity 
-          style={[styles.tabButton, activeTab === 'therapists' && styles.activeTabButton]} 
+          style={[
+            styles.tabButton, 
+            { backgroundColor: colors.card },
+            activeTab === 'therapists' && { backgroundColor: colors.accent }
+          ]} 
           onPress={() => setActiveTab('therapists')}
         >
-          <Text style={[styles.tabButtonText, activeTab === 'therapists' && styles.activeTabText]}>
+          <Text style={[
+            styles.tabButtonText, 
+            { color: colors.text },
+            activeTab === 'therapists' && { color: colors.text }
+          ]}>
             Therapists
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={[styles.tabButton, activeTab === 'upcoming' && styles.activeTabButton]} 
+          style={[
+            styles.tabButton, 
+            { backgroundColor: colors.card },
+            activeTab === 'upcoming' && { backgroundColor: colors.accent }
+          ]} 
           onPress={() => setActiveTab('upcoming')}
         >
-          <Text style={[styles.tabButtonText, activeTab === 'upcoming' && styles.activeTabText]}>
+          <Text style={[
+            styles.tabButtonText, 
+            { color: colors.text },
+            activeTab === 'upcoming' && { color: colors.text }
+          ]}>
             Upcoming
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={[styles.tabButton, activeTab === 'past' && styles.activeTabButton]} 
+          style={[
+            styles.tabButton, 
+            { backgroundColor: colors.card },
+            activeTab === 'past' && { backgroundColor: colors.accent }
+          ]} 
           onPress={() => setActiveTab('past')}
         >
-          <Text style={[styles.tabButtonText, activeTab === 'past' && styles.activeTabText]}>
+          <Text style={[
+            styles.tabButtonText, 
+            { color: colors.text },
+            activeTab === 'past' && { color: colors.text }
+          ]}>
             Past
           </Text>
         </TouchableOpacity>
@@ -276,7 +301,7 @@ export default function AppointmentsScreen() {
           renderItem={renderAppointmentItem}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No {activeTab} appointments</Text>
+              <Text style={[styles.emptyText, { color: colors.text + '99' }]}>No {activeTab} appointments</Text>
             </View>
           }
           contentContainerStyle={styles.appointmentsList}
@@ -284,12 +309,13 @@ export default function AppointmentsScreen() {
       )}
     </View>
   );
-}
+};
+
+export default AppointmentsScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.background,
   },
   headerSection: {
     flexDirection: 'row',
@@ -301,12 +327,10 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontFamily: 'Inter-Bold',
     fontSize: 24,
-    color: Colors.dark.text,
   },
   pageSubtitle: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: Colors.dark.text + '80',
     marginTop: 2,
   },
   tabContainer: {
@@ -321,23 +345,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },
-  activeTabButton: {
-    borderBottomColor: Colors.dark.accent,
-  },
   tabButtonText: {
     fontFamily: 'Inter-Medium',
     fontSize: 16,
-    color: Colors.dark.text + '80',
-  },
-  activeTabText: {
-    color: Colors.dark.text,
   },
   therapistsList: {
     paddingHorizontal: Layout.spacing.l,
     paddingBottom: Layout.spacing.l,
   },
   therapistCard: {
-    backgroundColor: Colors.dark.card,
     borderRadius: Layout.borderRadius.medium,
     marginBottom: Layout.spacing.m,
     overflow: 'hidden',
@@ -358,13 +374,11 @@ const styles = StyleSheet.create({
   therapistName: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 18,
-    color: Colors.dark.text,
     marginBottom: 4,
   },
   therapistSpecialization: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: Colors.dark.text + '99',
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -373,13 +387,11 @@ const styles = StyleSheet.create({
   ratingText: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
-    color: Colors.dark.text,
     marginLeft: 4,
   },
   reviewCount: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: Colors.dark.text + '99',
     marginLeft: 4,
   },
   therapistDetails: {
@@ -393,7 +405,6 @@ const styles = StyleSheet.create({
   detailText: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: Colors.dark.text + '99',
     marginLeft: Layout.spacing.s,
   },
   therapistActions: {
@@ -407,32 +418,26 @@ const styles = StyleSheet.create({
     paddingVertical: Layout.spacing.s,
     paddingHorizontal: Layout.spacing.m,
     borderRadius: Layout.borderRadius.small,
-    backgroundColor: Colors.dark.accent + '20',
   },
   reviewButtonText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: Colors.dark.accent,
     marginLeft: Layout.spacing.xs,
   },
   bookButton: {
     flex: 1,
-    marginLeft: Layout.spacing.m,
     paddingVertical: Layout.spacing.s,
     paddingHorizontal: Layout.spacing.m,
     borderRadius: Layout.borderRadius.small,
-    backgroundColor: Colors.dark.accent,
     alignItems: 'center',
   },
   bookButtonText: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 14,
-    color: Colors.dark.text,
   },
   nextAvailable: {
     fontFamily: 'Inter-Regular',
     fontSize: 12,
-    color: Colors.dark.text + '99',
     marginTop: 2,
   },
   appointmentsList: {
@@ -440,7 +445,6 @@ const styles = StyleSheet.create({
     paddingBottom: Layout.spacing.l,
   },
   appointmentCard: {
-    backgroundColor: Colors.dark.card,
     borderRadius: Layout.borderRadius.medium,
     marginBottom: Layout.spacing.m,
     overflow: 'hidden',
@@ -452,15 +456,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Layout.spacing.m,
     paddingVertical: Layout.spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.dark.border,
   },
   appointmentType: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
-    color: Colors.dark.text,
   },
   statusBadge: {
-    backgroundColor: Colors.dark.accent + '30',
     paddingHorizontal: Layout.spacing.s,
     paddingVertical: 4,
     borderRadius: Layout.borderRadius.small,
@@ -468,7 +469,6 @@ const styles = StyleSheet.create({
   statusText: {
     fontFamily: 'Inter-Medium',
     fontSize: 12,
-    color: Colors.dark.accent,
   },
   appointmentDetails: {
     padding: Layout.spacing.m,
@@ -477,7 +477,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: Layout.spacing.m,
     borderTopWidth: 1,
-    borderTopColor: Colors.dark.border,
   },
   appointmentButton: {
     flex: 1,
@@ -488,7 +487,6 @@ const styles = StyleSheet.create({
   rescheduleText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: Colors.dark.accent,
   },
   cancelButton: {
     marginRight: 0,
@@ -496,11 +494,9 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: Colors.dark.error,
   },
   bookAgainButton: {
     flex: 1,
-    backgroundColor: Colors.dark.accent,
     paddingVertical: Layout.spacing.s,
     alignItems: 'center',
     borderRadius: Layout.borderRadius.small,
@@ -508,7 +504,6 @@ const styles = StyleSheet.create({
   bookAgainText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: Colors.dark.text,
   },
   emptyContainer: {
     padding: Layout.spacing.xl,
@@ -517,6 +512,5 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: Colors.dark.text + '80',
   },
 });

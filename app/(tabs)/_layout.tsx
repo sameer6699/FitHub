@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { Tabs, Stack } from 'expo-router';
 import { Activity, Dumbbell, Calendar, User } from 'lucide-react-native';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { router } from 'expo-router';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const { isAuthenticated } = useAuth();
+  const { colors } = useTheme();
   
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -24,23 +24,23 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.dark.accent,
-        tabBarInactiveTintColor: Colors.dark.tabIconDefault,
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.tabIconDefault,
         tabBarStyle: {
-          backgroundColor: Colors.dark.card,
-          borderTopColor: Colors.dark.border,
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
         },
         tabBarLabelStyle: {
           fontFamily: 'Inter-Medium',
           fontSize: 12,
         },
         headerStyle: {
-          backgroundColor: Colors.dark.card,
+          backgroundColor: colors.card,
         },
         headerTitleStyle: {
           fontFamily: 'Inter-SemiBold',
           fontSize: 18,
-          color: Colors.dark.text,
+          color: colors.text,
         },
       }}
     >
@@ -50,6 +50,7 @@ export default function TabLayout() {
           title: 'Analytics',
           tabBarIcon: ({ color, size }) => <Activity size={size} color={color} />,
           headerTitle: 'Health Analytics',
+          headerRight: () => <ThemeToggle />,
         }}
       />
       <Tabs.Screen
