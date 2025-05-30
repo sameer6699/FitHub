@@ -35,9 +35,10 @@ export const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: 'Inter-Regular',
-    fontSize: 18,
+    fontSize: 12,
     color: Colors.dark.text,
-    opacity: 0.8,
+    opacity: 0.9,
+    letterSpacing: 1,
   },
   features: {
     marginVertical: Layout.spacing.xl,
