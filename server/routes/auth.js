@@ -40,6 +40,7 @@ router.post('/register', async (req, res) => {
       ...userData,
     });
 
+    // Save user to generate userId
     await user.save();
 
     // Generate JWT token
@@ -49,12 +50,15 @@ router.post('/register', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    // Remove password from response
+    // Remove password from response but keep userId
     const userResponse = user.toObject();
     delete userResponse.password;
 
     res.status(201).json({
-      user: userResponse,
+      user: {
+        ...userResponse,
+        userId: user.userId // Explicitly include userId in response
+      },
       token,
       message: 'Registration successful!'
     });
@@ -119,7 +123,7 @@ router.post('/login', async (req, res) => {
 
     // Create new session
     const userSession = new UserSession({
-      userId: user._id,
+      userId: user.userId, // Store the 8-digit user ID directly
       deviceInfo: req.headers['user-agent'] || 'Unknown',
       ipAddress: req.ip || 'Unknown'
     });

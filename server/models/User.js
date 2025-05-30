@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    unique: true,
+    sparse: true // This allows null/undefined values while maintaining uniqueness
+  },
   name: {
     type: String,
     required: true,
@@ -41,17 +46,37 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// Hash password before saving
+// Generate random 8-digit user ID before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
+  if (this.isNew) {
+    let userId;
+    let isUnique = false;
+    
+    while (!isUnique) {
+      // Generate random 8-digit number
+      userId = Math.floor(10000000 + Math.random() * 90000000).toString();
+      
+      // Check if userId already exists
+      const existingUser = await this.constructor.findOne({ userId });
+      if (!existingUser) {
+        isUnique = true;
+      }
+    }
+    
+    this.userId = userId;
   }
+  
+  // Hash password if modified
+  if (this.isModified('password')) {
+    try {
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password, salt);
+    } catch (error) {
+      return next(error);
+    }
+  }
+  
+  next();
 });
 
 // Method to compare passwords
